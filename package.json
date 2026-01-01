@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed.mjs",
+    "seed:reset": "node scripts/reset-seed.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.2",

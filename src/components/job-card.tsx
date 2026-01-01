@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { MapPin, Clock, DollarSign, Globe, Building2 } from "lucide-react"
 import type { Database } from "@/types/supabase"
+import { formatDistanceToNow } from "date-fns"
 
 type Job = Database['public']['Tables']['jobs']['Row']
 
@@ -73,7 +74,7 @@ export function JobCard({ job }: JobCardProps) {
 
             <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 shrink-0" />
-              <span>2 days ago</span>
+              <span>{job.created_at ? `${formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}` : ''}</span>
             </div>
 
             <div className="flex items-center gap-1.5 font-medium text-foreground">

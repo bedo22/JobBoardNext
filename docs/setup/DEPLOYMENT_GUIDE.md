@@ -1,26 +1,54 @@
-# Migration Guide: Vite to Next.js on Cloudflare Pages
+# Deployment Strategy: Vercel vs. Cloudflare
 
-This document outlines the critical steps to migrate your existing React Vite project to Next.js 16 (App Router) while preserving your Git history and ensuring successful deployment on Cloudflare Pages.
+**Recommendation:** Start with **Vercel**. 
+Move to **Cloudflare** only if you hit scale limits or specific cost constraints later.
 
-## 1. Architectural Changes
-Moving from Vite (Client-Side Rendering) to Next.js (Server-Side Rendering + Edge Functions) requires a different build process. You cannot simply deploy the Next.js app with the old Vite settings.
+---
 
-## 2. Git Strategy (Safety First)
-**Goal:** Keep your history but don't break the live site immediately.
+## Option 1: Vercel (Recommended for MVP/Portfolios)
+Vercel is the "native" home of Next.js. It requires zero configuration.
 
-1.  **Create a Migration Branch:**
-    ```bash
-    git checkout -b feature/nextjs-migration
-    ```
-2.  **Commit your changes:**
+### Steps to Deploy
+1.  **Push to GitHub:**
+    Ensure your latest code (with the `Job` type fixes) is on your `main` branch.
     ```bash
     git add .
-    git commit -m "Refactor: Migrate to Next.js 16 with Supabase"
+    git commit -m "Ready for deployment"
+    git push origin main
     ```
-3.  **Push to remote:**
-    ```bash
-    git push origin feature/nextjs-migration
-    ```
+
+2.  **Connect to Vercel:**
+    *   Log in to [vercel.com](https://vercel.com).
+    *   Click **"Add New..."** > **"Project"**.
+    *   Select your `job-board` repository.
+
+3.  **Configure Project:**
+    *   **Framework Preset:** Next.js (Auto-detected).
+    *   **Build Command:** `npm run build` (Default).
+    *   **Environment Variables:** Copy these from your `.env.local`:
+        *   `NEXT_PUBLIC_SUPABASE_URL`
+        *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+        *   `GOOGLE_GENERATIVE_AI_API_KEY`
+
+4.  **Deploy:**
+    *   Click **Deploy**.
+    *   Vercel will build your site and give you a `https://job-board-xyz.vercel.app` domain.
+
+### Why Vercel?
+*   **Zero Config:** Server Actions, Images, and SSR work out of the box.
+*   **Logs:** Real-time logs make debugging production issues easy.
+*   **Speed:** It's optimized for Next.js caching strategies.
+
+---
+
+## Option 2: Cloudflare Pages (Advanced / "Level 2")
+Cloudflare is cheaper for high-traffic sites but requires an adapter (`@cloudflare/next-on-pages`) and limits some Node.js features because it runs on the "Edge".
+
+**Use this only if:**
+*   Vercel becomes too expensive.
+*   You specifically want to learn Edge computing.
+*   You want to "show off" advanced DevOps skills.
+
 
 ## 3. Project Configuration for Cloudflare
 Cloudflare Pages needs an adapter to run Next.js Server Actions and API routes on the Edge.
@@ -78,3 +106,4 @@ You must add your new keys to Cloudflare (Settings > Environment variables). The
 
 ---
 **Verdict:** Do not overwrite your `main` branch until the Preview Deployment on Cloudflare is 100% functional.
+

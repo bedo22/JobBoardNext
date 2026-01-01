@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Personal Documentation
+docs/freelancing
+docs/ownership
+docs/overview
+docs/README.md
