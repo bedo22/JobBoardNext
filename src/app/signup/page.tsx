@@ -30,6 +30,7 @@ export default function SignupPage() {
     defaultValues: { role: "seeker" }
   })
   const router = useRouter()
+  // eslint-disable-next-line react-hooks/incompatible-library
   const role = watch("role")
 
   // Redirect if already logged in

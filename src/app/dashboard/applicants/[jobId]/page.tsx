@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import type { Job, ApplicationWithProfile } from "@/types/app";
 
 export default function JobApplicantsPage() {
-    const { isEmployer, profile, isLoading: isAuthLoading } = useAuth();
+    const { isEmployer, loading: isAuthLoading } = useAuth();
     const params = useParams();
     const router = useRouter();
     const jobId = params?.jobId as string;
@@ -22,24 +22,20 @@ export default function JobApplicantsPage() {
     const [applicants, setApplicants] = useState<ApplicationWithProfile[]>([]);
     const [loading, setLoading] = useState(true);
 
-    console.log("Applicants Page State:", { jobId, isAuthLoading, isEmployer, profileId: profile?.id });
-
     useEffect(() => {
         if (isAuthLoading) return;
 
         if (!isEmployer) {
-            console.log("Access Denied: Not an employer");
             router.push("/dashboard");
             return;
         }
 
         const fetchData = async () => {
-            console.log("Fetching data for jobId:", jobId);
             try {
                 // 1. Fetch Job Details
                 const { data: jobData, error: jobError } = await supabase
                     .from("jobs")
-                    .select("title, company_name")
+                    .select("*")
                     .eq("id", jobId)
                     .single();
                 
@@ -111,7 +107,7 @@ export default function JobApplicantsPage() {
                                 <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
                                     <div className="flex items-center gap-4">
                                         <Avatar className="h-12 w-12">
-                                            <AvatarImage src={app.profiles?.avatar_url} />
+                                            <AvatarImage src={app.profiles?.avatar_url ?? undefined} alt={app.profiles?.full_name ?? 'Applicant'} />
                                             <AvatarFallback>{app.profiles?.full_name?.charAt(0) || "?"}</AvatarFallback>
                                         </Avatar>
                                         <div>

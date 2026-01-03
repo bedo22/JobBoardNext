@@ -17,7 +17,7 @@ export default async function Index() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background py-24">
+      <section className="relative overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-24 min-h-[calc(100svh-4rem)] flex items-center">
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -53,7 +53,7 @@ export default async function Index() {
             </Link>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {latestJobs && latestJobs.length > 0 ? (
               latestJobs.map((job) => (
                 <JobCard key={job.id} job={job} />

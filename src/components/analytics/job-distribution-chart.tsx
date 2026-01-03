@@ -23,7 +23,7 @@ export function JobDistributionChart({ data }: JobDistributionChartProps) {
                 <CardTitle>Job Type Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="h-[300px] w-full">
+                <div className="h-75 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -41,7 +41,7 @@ export function JobDistributionChart({ data }: JobDistributionChartProps) {
                                 ))}
                             </Pie>
                             <Tooltip
-                                formatter={(value: number) => [value, 'Jobs']}
+                                formatter={(value?: number) => [value ?? 0, 'Jobs']}
                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             />
                             <Legend verticalAlign="bottom" height={36} />

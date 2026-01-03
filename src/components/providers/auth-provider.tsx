@@ -27,36 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  useEffect(() => {
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        fetchProfile(session.user.id, session);
-      } else {
-        setState((prev) => ({ ...prev, session: null, user: null, loading: false }));
-      }
-    });
-
-    // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // Only fetch profile if user changed or we don't have it
-        if (session.user.id !== state.user?.id) {
-            fetchProfile(session.user.id, session);
-        } else {
-            // Update session but keep profile
-            setState(prev => ({ ...prev, session, user: session.user, loading: false }));
-        }
-      } else {
-        setState({ user: null, session: null, profile: null, loading: false });
-      }
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
   const fetchProfile = async (userId: string, session: Session) => {
     try {
       const { data } = await supabase
@@ -76,6 +46,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({ ...prev, loading: false }));
     }
   };
+
+  useEffect(() => {
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user.id, session);
+      } else {
+        setState((prev) => ({ ...prev, session: null, user: null, loading: false }));
+      }
+    });
+
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Simpler: always fetch profile on auth change to avoid stale dependencies
+        fetchProfile(session.user.id, session)
+      } else {
+        setState({ user: null, session: null, profile: null, loading: false })
+      }
+    })
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();

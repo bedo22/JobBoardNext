@@ -68,7 +68,7 @@ export default function Pricing() {
                     Simple, Transparent Pricing
                 </h1>
                 <p className="mt-4 text-lg text-muted-foreground">
-                    Choose the plan that's right for your career journey.
+                    Choose the plan that&apos;s right for your career journey.
                 </p>
             </div>
 

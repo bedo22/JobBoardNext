@@ -82,9 +82,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <div className="lg:col-span-2 space-y-8">
                     {/* Job Header */}
                     <div>
-                        <h1 className="text-4xl font-bold mb-4">{job.title}</h1>
+                        <h1 className="text-4xl font-bold mb-4 break-words">{job.title}</h1>
                         <div className="flex items-center gap-4 flex-wrap">
-                            <p className="text-2xl font-semibold text-primary">{job.company_name}</p>
+                            <p className="text-2xl font-semibold text-primary break-words">{job.company_name}</p>
                             <div className="flex gap-2">
                                 <Badge variant="secondary" className="capitalize">{job.type?.replace('-', ' ')}</Badge>
                                 {job.location_type === 'remote' && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Remote</Badge>}

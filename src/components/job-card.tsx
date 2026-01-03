@@ -35,18 +35,18 @@ export function JobCard({ job }: JobCardProps) {
 
   return (
     <Link href={`/jobs/${job.id}`}>
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border">
+      <Card className="hover:shadow-lg transition-shadow cursor-pointer border overflow-hidden">
         <CardHeader className="pb-4">
-          <div className="flex justify-between items-start gap-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-semibold truncate">{job.title}</h3>
+              <h3 className="text-xl font-semibold break-words line-clamp-2">{job.title}</h3>
               <p className="text-lg text-primary font-medium">{job.company_name}</p>
             </div>
 
             {/* Badges: نوع الوظيفة + مكان العمل */}
-            <div className="flex flex-wrap gap-2 justify-end">
+            <div className="flex flex-wrap gap-2 justify-start sm:justify-end max-w-full">
               {job.type && (
-                <Badge variant="secondary" className="capitalize whitespace-nowrap">
+                <Badge variant="secondary" className="capitalize whitespace-nowrap max-w-[50vw] truncate sm:max-w-none">
                   {job.type.replace('-', ' ')}
                 </Badge>
               )}
@@ -66,7 +66,7 @@ export function JobCard({ job }: JobCardProps) {
 
         <CardContent className="space-y-4">
           {/* معلومات سريعة */}
-          <div className="flex flex-wrap gap-5 text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-5 text-sm text-muted-foreground break-words">
             <div className="flex items-center gap-1.5">
               <LocationIcon className="h-4 w-4 shrink-0" />
               <span>{locationText}</span>
@@ -87,12 +87,12 @@ export function JobCard({ job }: JobCardProps) {
           {job.requirements && job.requirements.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {job.requirements.slice(0, 4).map((req, i) => (
-                <Badge key={i} variant="outline" className="text-xs">
+                <Badge key={i} variant="outline" className="text-xs max-w-[75vw] truncate">
                   {req}
                 </Badge>
               ))}
               {job.requirements.length > 4 && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs max-w-[75vw] truncate">
                   +{job.requirements.length - 4} more
                 </Badge>
               )}

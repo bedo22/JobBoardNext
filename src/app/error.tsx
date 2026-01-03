@@ -26,7 +26,7 @@ export default function Error({
                     Something went wrong!
                 </h1>
                 <p className="text-muted-foreground max-w-[500px] mx-auto text-lg">
-                    An unexpected error occurred. We've been notified and are working on it.
+                    An unexpected error occurred. We&apos;ve been notified and are working on it.
                 </p>
             </div>
             <div className="flex gap-4">

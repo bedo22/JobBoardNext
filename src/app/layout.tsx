@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import "../index.css";
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
         type: 'website',
     },
 }
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: 'cover',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (

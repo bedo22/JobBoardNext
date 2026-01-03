@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, startTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useCompletion } from "@ai-sdk/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -37,7 +37,7 @@ export default function PostJobPage() {
     const router = useRouter();
     const [state, formAction, isPending] = useActionState(postJob, { error: "", success: false });
 
-    const { register, trigger, formState: { errors, isValid }, setValue, getValues, watch } = useForm<JobForm>({
+    const { register, trigger, formState: { errors }, setValue, getValues, control } = useForm<JobForm>({
         resolver: zodResolver(jobSchema),
         mode: "onBlur",
         defaultValues: {
@@ -56,7 +56,9 @@ export default function PostJobPage() {
     });
 
     // Update requirements field in real-time as AI streams
-    const requirementsValue = watch("requirements");
+    const requirementsValue = useWatch({ control, name: "requirements" });
+    const titleValue = useWatch({ control, name: "title" });
+    const descriptionValue = useWatch({ control, name: "description" });
     const isGenerating = isAiLoading && completion;
 
     // Effectively combine existing value with completion during streaming
@@ -141,7 +143,7 @@ export default function PostJobPage() {
                                 <Label>Job Type</Label>
                                 {/* Hidden input for Server Action */}
                                 <input type="hidden" name="type" value={getValues("type")} />
-                                <Select onValueChange={(v) => setValue("type", v as any)} defaultValue="full-time">
+                                <Select onValueChange={(v) => setValue("type", v as "full-time" | "part-time" | "contract" | "internship")} defaultValue="full-time">
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -157,7 +159,7 @@ export default function PostJobPage() {
                             <div>
                                 <Label>Location Type</Label>
                                 <input type="hidden" name="location_type" value={getValues("location_type")} />
-                                <Select onValueChange={(v) => setValue("location_type", v as any)} defaultValue="onsite">
+                                <Select onValueChange={(v) => setValue("location_type", v as "onsite" | "remote" | "hybrid")} defaultValue="onsite">
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -202,7 +204,7 @@ export default function PostJobPage() {
                                     variant="outline"
                                     size="sm"
                                     onClick={handleGenerateAI}
-                                    disabled={isAiLoading || !watch("title") || !watch("description")}
+                                    disabled={isAiLoading || !titleValue || !descriptionValue }
                                     className="h-8 gap-2 bg-primary/5 hover:bg-primary/10 border-primary/20"
                                 >
                                     {isAiLoading ? (

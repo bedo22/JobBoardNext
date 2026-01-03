@@ -67,7 +67,7 @@ export default function DashboardPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {myJobs.length === 0 ? (
                     <Card className="p-10 text-center col-span-full">
-                        <p className="text-muted-foreground mb-4">You haven't posted any jobs yet</p>
+                        <p className="text-muted-foreground mb-4">You haven&apos;t posted any jobs yet</p>
                         <Link href="/jobs/post">
                             <Button>Post First Job</Button>
                         </Link>
@@ -75,8 +75,8 @@ export default function DashboardPage() {
                 ) : (
                     myJobs.map(job => (
                         <Card key={job.id} className="p-6">
-                            <h3 className="font-semibold text-lg">{job.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-2">{job.company_name}</p>
+                            <h3 className="font-semibold text-lg break-words line-clamp-2">{job.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-2 break-words line-clamp-1">{job.company_name}</p>
                             <div className="mt-6 flex gap-3">
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href={`/jobs/${job.id}`}>View Job</Link>

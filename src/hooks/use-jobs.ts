@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { JobType } from '@/types/app'
 
@@ -27,7 +27,7 @@ export function useJobs(filters: Filters = {
 
   const PAGE_SIZE = 10
 
-  const fetchJobs = async (reset = false) => {
+  const fetchJobs = React.useCallback(async (reset = false) => {
     setLoading(true)
     const from = reset ? 0 : page * PAGE_SIZE
     const to = from + PAGE_SIZE - 1
@@ -75,24 +75,27 @@ export function useJobs(filters: Filters = {
     setHasMore(count ? count > to + 1 : false)
     setPage(prev => reset ? 1 : prev + 1)
     setLoading(false)
-  }
+  }, [page, filters])
 
-  const loadMore = () => !loading && hasMore && fetchJobs(false)
-  const refetch = () => fetchJobs(true)
+  const loadMore = React.useCallback(() => {
+    if (!loading && hasMore) void fetchJobs(false)
+  }, [loading, hasMore, fetchJobs])
+  const refetch = React.useCallback(() => { void fetchJobs(true) }, [fetchJobs])
 
   // Instant filtering for checkboxes and toggles (better UX for click actions)
+  const typeKey = React.useMemo(() => filters.type.join(','), [filters.type])
   useEffect(() => {
-    refetch()
-  }, [JSON.stringify(filters.type), filters.remote, filters.hybrid])
+    const id = setTimeout(() => { refetch() }, 0) // schedule to avoid synchronous setState in effect
+    return () => clearTimeout(id)
+  }, [typeKey, filters.remote, filters.hybrid, refetch])
 
   // Debounced filtering for text inputs (wait until user stops typing)
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       refetch()
-    }, 500) // Wait 500ms after user stops typing
-
+    }, 500)
     return () => clearTimeout(delayDebounce)
-  }, [filters.search, filters.location])
+  }, [filters.search, filters.location, refetch])
 
   return { jobs, loading, hasMore, loadMore, refetch }
 }
