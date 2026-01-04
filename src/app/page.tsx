@@ -18,6 +18,12 @@ export default async function Index() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-24 min-h-[calc(100svh-4rem)] flex items-center">
+          {/* Decorative background */}
+          <div className="pointer-events-none absolute inset-0 -z-0">
+            <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/ blur-3xl" />
+            <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-emerald-300/20 blur-3xl dark:bg-emerald-400/10" />
+            <div className="absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_0%,theme(colors.primary/8),transparent_60%)]" />
+          </div>
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -38,6 +44,15 @@ export default async function Index() {
                   <Briefcase className="mr-2 h-5 w-5" /> Post a Job
                 </Button>
               </Link>
+            </div>
+
+            {/* Category chips */}
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link href="/jobs?search=frontend"><Button variant="outline" size="sm">Frontend</Button></Link>
+              <Link href="/jobs?search=backend"><Button variant="outline" size="sm">Backend</Button></Link>
+              <Link href="/jobs?type=full-time"><Button variant="outline" size="sm">Full-time</Button></Link>
+              <Link href="/jobs?type=contract"><Button variant="outline" size="sm">Contract</Button></Link>
+              <Link href="/jobs?remote=true"><Button variant="outline" size="sm">Remote</Button></Link>
             </div>
           </div>
         </div>

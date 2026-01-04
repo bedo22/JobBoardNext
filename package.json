@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint", 
+    "test:e2e": "playwright test",
     "seed": "node scripts/seed.mjs",
     "seed:reset": "node scripts/reset-seed.mjs"
   },

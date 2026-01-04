@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle,SheetHeader } from "@/components/ui/sheet"
 import { Menu, Briefcase, LogOut, LayoutDashboard } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
@@ -78,7 +78,10 @@ export function Navbar() {
                       </Button>
                     </SheetTrigger>
                     <SheetContent side="right">
-                      <div className="flex flex-col gap-6 mt-8">
+                      <SheetHeader>
+                        <SheetTitle className="sr-only">Main menu</SheetTitle>
+                      </SheetHeader>
+                      <div className="flex flex-col gap-6 mt-4">
                         <Link href="/dashboard" className="text-lg font-medium">
                           Dashboard
                         </Link>
@@ -103,7 +106,10 @@ export function Navbar() {
                       </Button>
                     </SheetTrigger>
                     <SheetContent side="right">
-                      <div className="flex flex-col gap-6 mt-8">
+                      <SheetHeader>
+                        <SheetTitle className="sr-only">Main menu</SheetTitle>
+                      </SheetHeader>
+                      <div className="flex flex-col gap-6 mt-4">
                         <Link href="/login" className="text-lg font-medium">Login</Link>
                         <Link href="/signup"><Button className="w-full">Sign Up</Button></Link>
                       </div>

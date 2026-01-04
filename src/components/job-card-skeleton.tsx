@@ -28,14 +28,6 @@ export function JobCardSkeleton() {
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-4 w-32" />
                 </div>
-
-                {/* Requirements Badges */}
-                <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-6 w-16" />
-                    <Skeleton className="h-6 w-20" />
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-6 w-18" />
-                </div>
             </CardContent>
         </Card>
     )

@@ -82,22 +82,6 @@ export function JobCard({ job }: JobCardProps) {
               <span>{salary}</span>
             </div>
           </div>
-
-          {/* المتطلبات (أول 4 بس) */}
-          {job.requirements && job.requirements.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {job.requirements.slice(0, 4).map((req, i) => (
-                <Badge key={i} variant="outline" className="text-xs max-w-[75vw] truncate">
-                  {req}
-                </Badge>
-              ))}
-              {job.requirements.length > 4 && (
-                <Badge variant="outline" className="text-xs max-w-[75vw] truncate">
-                  +{job.requirements.length - 4} more
-                </Badge>
-              )}
-            </div>
-          )}
         </CardContent>
       </Card>
     </Link>
