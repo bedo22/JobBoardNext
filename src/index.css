@@ -126,6 +126,19 @@
 }
 
 @layer utilities {
+  /* Subtle dot grid background utility */
+  .bg-grid-pattern {
+    background-image: radial-gradient(circle at 1px 1px, color-mix(in oklab, var(--color-primary) 12%, transparent) 2px, transparent 2px);
+    background-size: 24px 24px;
+  }
+  /* Text gradient utility for accent words */
+  .text-gradient {
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-chart-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .container {
     @apply px-4 mx-auto max-w-7xl;
   }

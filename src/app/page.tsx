@@ -18,6 +18,8 @@ export default async function Index() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-24 min-h-[calc(100svh-4rem)] flex items-center">
+        {/* Optional dot grid background */}
+        <div className="pointer-events-none absolute inset-0 -z-0 bg-grid-pattern opacity-60 dark:opacity-40" />
           {/* Decorative background */}
           <div className="pointer-events-none absolute inset-0 -z-0">
             <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/ blur-3xl" />
