@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, startTransition } from "react";
+import { useActionState, startTransition, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useCompletion } from "@ai-sdk/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,8 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { postJob } from "./actions";
+import { supabase } from "@/lib/supabaseClient";
 import { Sparkles, Loader2 } from "lucide-react";
 
 // Schema for Client-Side Validation
@@ -46,6 +47,34 @@ export default function PostJobPage() {
             type: "full-time",
         }
     });
+
+    const searchParams = useSearchParams();
+    const editId = searchParams.get('edit');
+
+    useEffect(() => {
+        const prefill = async () => {
+            if (!editId) return;
+            const { data: job } = await supabase
+                .from('jobs')
+                .select('*')
+                .eq('id', editId)
+                .maybeSingle();
+            if (!job) return;
+            // Prefill fields; requirements/benefits are arrays in DB
+            setValue('title', job.title);
+            setValue('company_name', job.company_name);
+            setValue('location', job.location || '');
+            setValue('type', job.type || 'full-time');
+            setValue('location_type', job.location_type || 'onsite');
+            setValue('salary_min', job.salary_min || undefined);
+            setValue('salary_max', job.salary_max || undefined);
+            setValue('description', job.description || '');
+            setValue('requirements', Array.isArray(job.requirements) ? job.requirements.join('\n') : '');
+            setValue('benefits', Array.isArray(job.benefits) ? job.benefits.join('\n') : '');
+        }
+        void prefill();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editId]);
 
     const { complete, completion, isLoading: isAiLoading } = useCompletion({
         api: "/api/completion",
@@ -116,7 +145,7 @@ export default function PostJobPage() {
         <div className="container py-10 max-w-3xl">
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-3xl">Post a New Job</CardTitle>
+                    <CardTitle className="text-3xl">{editId ? 'Edit Job' : 'Post a New Job'}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {state?.error && (
@@ -126,6 +155,7 @@ export default function PostJobPage() {
                     )}
 
                     <form action={handleClientSubmit} className="space-y-6">
+                        {editId && <input type="hidden" name="job_id" value={editId} />}
                         <div>
                             <Label>Job Title</Label>
                             <Input {...register("title")} name="title" placeholder="Senior React Developer" />

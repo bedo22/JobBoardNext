@@ -4,9 +4,13 @@ import { useAuth } from "@/hooks/use-auth"
 import { supabase } from "@/lib/supabaseClient"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { MoreVertical } from "lucide-react"
+import { deleteJob } from "./jobs/actions"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { JobDistributionChart } from "@/components/analytics/job-distribution-chart"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Job } from "@/types/app"
 
 export default function DashboardPage() {
@@ -62,7 +66,7 @@ export default function DashboardPage() {
 
     return (
         <div className="container py-10">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-2">
                 <h1 className="text-3xl font-bold">Employer Dashboard</h1>
                 <Link href="/jobs/post">
                     <Button size="lg">Post New Job</Button>
@@ -117,6 +121,9 @@ export default function DashboardPage() {
                 </>
             )}
 
+              </TabsContent>
+
+              <TabsContent value="manage">
             <h2 className="text-2xl font-semibold mb-4">Your Posted Jobs</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {myJobs.length === 0 ? (
@@ -131,7 +138,7 @@ export default function DashboardPage() {
                         <Card key={job.id} className="p-6">
                             <h3 className="font-semibold text-lg break-words line-clamp-2">{job.title}</h3>
                             <p className="text-sm text-muted-foreground mt-2 break-words line-clamp-1">{job.company_name}</p>
-                            <div className="mt-6 flex flex-wrap gap-3">
+                            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                                 {/* Mobile: single Manage */}
                                 <div className="flex md:hidden">
                                     <Button size="sm" asChild>
@@ -139,13 +146,36 @@ export default function DashboardPage() {
                                     </Button>
                                 </div>
                                 {/* Desktop: Applicants + Edit */}
-                                <div className="hidden md:flex gap-3">
+                                <div className="hidden md:flex gap-3 items-center">
                                     <Button size="sm" asChild>
                                         <Link href={`/dashboard/applicants/${job.id}`}>View Applicants →</Link>
                                     </Button>
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href={`/jobs/post?edit=${job.id}`}>Edit</Link>
                                     </Button>
+                                </div>
+                                {/* Overflow menu */}
+                                <div className="ml-auto">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" aria-label="More actions"><MoreVertical className="h-4 w-4" /></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/jobs/${job.id}`}>View Public Page</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <form action={deleteJob} onSubmit={(e) => {
+                                                    if (!confirm('Delete this job? This cannot be undone.')) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}>
+                                                    <input type="hidden" name="job_id" value={job.id} />
+                                                    <button type="submit" className="w-full text-left text-red-600">Delete</button>
+                                                </form>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </div>
                         </Card>

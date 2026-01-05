@@ -22,6 +22,8 @@ export async function postJob(prevState: JobFormState, formData: FormData): Prom
     }
 
     // 2. Extract & Validate Data
+    const jobId = (formData.get("job_id") || "").toString().trim() || null
+
     const rawData = {
         title: formData.get("title"),
         company_name: formData.get("company_name"),
@@ -44,19 +46,51 @@ export async function postJob(prevState: JobFormState, formData: FormData): Prom
     const { data } = validatedFields;
 
     // 3. Insert into Database
-    const { error } = await supabase.from("jobs").insert({
-        ...data,
-        employer_id: user.id,
-        requirements: data.requirements.split("\n").filter((r) => r.trim()),
-        benefits: data.benefits?.split("\n").filter((b) => b.trim()) || [],
-    });
+    if (jobId) {
+        // Update existing job (ownership check)
+        const { data: existing } = await supabase
+            .from('jobs')
+            .select('id, employer_id')
+            .eq('id', jobId)
+            .maybeSingle()
 
-    if (error) {
-        console.error("Database Error:", error);
-        return { error: "Failed to post job. Please try again." };
+        if (!existing || existing.employer_id !== user.id) {
+            return { error: "You are not allowed to edit this job." }
+        }
+
+        const { error: updErr } = await supabase
+            .from('jobs')
+            .update({
+                ...data,
+                requirements: data.requirements.split("\n").filter((r) => r.trim()),
+                benefits: data.benefits?.split("\n").filter((b) => b.trim()) || [],
+            })
+            .eq('id', jobId)
+
+        if (updErr) {
+            console.error('Database Error (update):', updErr)
+            return { error: 'Failed to update job. Please try again.' }
+        }
+
+        revalidatePath('/dashboard')
+        revalidatePath('/jobs')
+        redirect('/dashboard')
+    } else {
+        // Insert new job
+        const { error } = await supabase.from("jobs").insert({
+            ...data,
+            employer_id: user.id,
+            requirements: data.requirements.split("\n").filter((r) => r.trim()),
+            benefits: data.benefits?.split("\n").filter((b) => b.trim()) || [],
+        });
+
+        if (error) {
+            console.error("Database Error:", error);
+            return { error: "Failed to post job. Please try again." };
+        }
+
+        // 4. Revalidate & Redirect
+        revalidatePath("/jobs");
+        redirect("/jobs");
     }
-
-    // 4. Revalidate & Redirect
-    revalidatePath("/jobs");
-    redirect("/jobs");
 }
