@@ -1,4 +1,4 @@
-import { google } from '@ai-sdk/google'
+import { getAIModel } from '@/lib/ai'
 import { streamText } from 'ai'
 import { env } from '@/lib/env'
 import { createClient } from '@/lib/supabase/server'
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const modelId = env.AI_GOOGLE_MODEL || 'gemini-1.5-flash'
 
     const result = await streamText({
-      model: google(modelId),
+      model: getAIModel(modelId),
       system: `You are a professional HR assistant and technical recruiter.
       Your task is to generate a concise, high-quality list of job requirements based on the provided job title and description.
 

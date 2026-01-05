@@ -3,14 +3,23 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle,SheetHeader } from "@/components/ui/sheet"
-import { Menu, Briefcase, LogOut, LayoutDashboard } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet"
+import { Menu, Briefcase, LogOut, LayoutDashboard, User, Settings } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Navbar() {
-  const { user, signOut, loading } = useAuth()
+  const { user, profile, signOut, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -65,9 +74,39 @@ export function Navbar() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="sm" onClick={handleLogout}>
-                      <LogOut className="h-4 w-4" />
-                    </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
+                            <AvatarFallback>{profile?.full_name?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{profile?.full_name || "Profile"}</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <Link href="/profile">
+                          <DropdownMenuItem className="cursor-pointer">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile Settings</span>
+                          </DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   {/* Mobile */}
@@ -82,10 +121,13 @@ export function Navbar() {
                         <SheetTitle className="sr-only">Main menu</SheetTitle>
                       </SheetHeader>
                       <div className="flex flex-col gap-6 mt-4">
-                        <Link href="/dashboard" className="text-lg font-medium">
-                          Dashboard
+                        <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
+                          <LayoutDashboard className="h-5 w-5" /> Dashboard
                         </Link>
-                        <Button variant="outline" onClick={handleLogout} className="w-full">
+                        <Link href="/profile" className="flex items-center gap-2 text-lg font-medium">
+                          <Settings className="h-5 w-5" /> Profile Settings
+                        </Link>
+                        <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
                           <LogOut className="h-4 w-4 mr-2" /> Logout
                         </Button>
                       </div>
