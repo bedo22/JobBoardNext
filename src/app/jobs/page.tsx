@@ -73,6 +73,9 @@ export default function JobsPage() {
             <h1 className="text-4xl font-bold">All Jobs</h1>
             <p className="text-muted-foreground mt-2">
               {jobs.length} {jobs.length === 1 ? "job" : "jobs"} found
+              </p>
+              <p className="sr-only" aria-live="polite">{jobs.length} {jobs.length === 1 ? 'job' : 'jobs'} found</p>
+            <p className="text-muted-foreground mt-2">
             </p>
           </div>
 

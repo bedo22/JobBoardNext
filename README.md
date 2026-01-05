@@ -1,106 +1,81 @@
-JobBoard is a modern, production-ready job marketplace built with Next.js, Supabase, and a polished component system. It demonstrates full-stack competence suitable for freelance and startup work: posting jobs, browsing with filters and infinite scroll, analytics for employers, authentication, and AI-assisted content.
+# JobBoard — Modern Job Marketplace (Next.js + Supabase)
 
-## Features
+A polished, responsive job marketplace built with Next.js. It’s designed to demonstrate production-quality full‑stack work for clients: fast job browsing with filters and infinite scroll, clean posting flow, employer analytics, strong mobile UX, and accessible UI.
 
-- Browse jobs with fast filters and infinite scroll
-- Post new jobs (server actions + Zod validation)
-- Employer dashboard with analytics (Recharts)
-- Authentication with Supabase (SSR and client)
-- Theming, accessible UI primitives, and skeletons
-- AI-assisted requirements generator
+## Highlights clients care about
+- Fast job search with responsive filters and infinite scroll
+- Clean job posting flow (validated with Zod)
+- Employer dashboard with charts (Pie/Bar toggle, totals, %)
+- Mobile-first design, no horizontal scroll, accessible dialogs and focus states
+- SEO-ready metadata and viewport set correctly
 
-## Tech Stack
+## Demo (What you’ll see)
+- Home: Hero with tasteful background and quick category chips
+- Jobs: Filter by keyword/location/type/remote; URL updates; infinite scroll
+- Job details: Full requirements; clean layout
+- Dashboard (employer): Job type distribution chart with toggle and tooltips
+- Pricing (demo): Ready to extend with Stripe Checkout (test mode) to sell job posts
 
-- Framework: Next.js (App Router)
-- Database/Auth: Supabase (@supabase/ssr)
-- UI: Tailwind CSS v4, Radix UI, shadcn-inspired components, sonner
-- Charts: Recharts
-- Forms/Validation: React Hook Form, Zod
-- AI: ai + @ai-sdk/google
-- TypeScript, ESLint (Next core web vitals)
+## Why this is portfolio‑ready
+- Next.js (App Router), Tailwind v4, Radix UI, TypeScript
+- Supabase auth + queries (SSR-ready)
+- Recharts analytics with solid UX (toggle, totals, % in tooltip)
+- Lint/type/build discipline; Playwright smoke tests scaffolded
+- Accessibility fixes (DialogTitle for sheets, alt text, focus outlines)
 
-## Architecture
+## AI integration (what’s implemented vs planned)
+- Implemented now (server-side, streaming):
+  - /api/completion uses ai + @ai-sdk/google (Gemini) to stream a concise list of requirements from a job title + description.
+  - Auth required (Supabase user check). Demo-grade IP rate limiting (10 req / 10 min) and 30s max duration.
+  - Strict prompt: returns 5–8 line-separated requirements, no bullets, suitable for quick paste into the form.
+  - Intended usage in the Post Job flow via a “Generate requirements” button that streams into the requirements textarea.
+- Why it matters for clients:
+  - Shows practical, safe AI integration patterns: server-only keys, streaming UX, input constraints, and basic abuse protection.
+- Planned enhancements (kept small and portfolio-friendly):
+  - Cover letter draft from seeker profile + job description (server-side, streamed).
+  - Optional moderation and length guards around prompts.
+  - Caching short-lived results for quick retries.
 
-- app/: App Router pages, server actions, API routes
-- components/: UI, layout, analytics
-- lib/: env validation, supabase clients, utils, validation schemas
-- hooks/: auth, jobs
-- types/: generated Supabase types, app types
+## Roadmap for clients (quick wins I can ship)
+- Stripe Checkout (hosted) in test mode with webhook to unlock “Pay‑per‑post”
+- SSR variant of /jobs for SEO‑first browsing (searchParams)
+- Trusted‑by logos strip and insights card on Home
 
-## Setup
-
-1) Prerequisites
-- Node 18+
-- Supabase project with jobs table and auth enabled
-
-2) Environment variables
-Create a .env.local file:
-
+## Setup (for reviewers)
+1) Env
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-# Optional AI
-GOOGLE_GENERATIVE_AI_API_KEY=...
-AI_GOOGLE_MODEL=gemini-2.5-flash-preview-09-2025
+GOOGLE_GENERATIVE_AI_API_KEY=
+AI_GOOGLE_MODEL=
+
 ```
 
-3) Install and run
-
-```bash
+2) Install & run
+```
 npm install
 npm run dev
 ```
 
-## Scripts
-
-- dev: start Next dev server
-- build/start: production build
-- lint: run ESLint
-
-## Demo data (optional)
-
-A seed script can populate sample jobs and accounts for demos. (Planned in roadmap.)
-
-## Deployment
-
-- Vercel or Cloudflare Pages (see docs/setup-guide.md)
-- Ensure env vars are set; consider adding observability and rate limiting in production
-
-## Roadmap and Docs
-
-See docs/README.md for the full documentation and the improvement plan.
-
-
-
-Alternatively, run with bun/pnpm/yarn as you prefer.
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+3) Test (optional)
+```
+npx playwright install
+npm run build && npm start
+npm run test:e2e
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech stack
+- Framework: Next.js 16 (App Router)
+- Styling: Tailwind CSS v4, Radix UI primitives, shadcn‑inspired components
+- Data/Auth: Supabase (@supabase/ssr)
+- Charts: Recharts
+- Forms: React‑Hook‑Form + Zod
+- Toaster: sonner
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contact
+Looking for a fast, modern landing or small app in Next.js? I offer:
+- Landing Page + SEO Starter
+- Mobile & Accessibility Polish Sprint
+- Forms + Validation add‑on
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Let’s talk about your project.

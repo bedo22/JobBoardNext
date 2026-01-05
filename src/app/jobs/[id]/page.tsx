@@ -16,6 +16,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const { id } = await params
     const supabase = await createClient()
     const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
+    const { data: { user } } = await supabase.auth.getUser()
+    const isOwner = user?.id && job ? user.id === job.employer_id : false
 
     if (!job) return { title: 'Job Not Found' }
 
@@ -182,7 +184,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     <Card className="sticky top-24">
                         <CardContent className="pt-6">
                             {user ? (
-                                alreadyApplied ? (
+                                user.id === job.employer_id ? (
+                                    <div className="space-y-3">
+                                        <div className="text-sm text-muted-foreground text-center">
+                                            You posted this job.
+                                        </div>
+                                        <Button asChild size="lg" variant="outline" className="w-full">
+                                            <Link href={`/dashboard/applicants/${job.id}`}>Manage applicants</Link>
+                                        </Button>
+                                    </div>
+                                ) : alreadyApplied ? (
                                     <div className="text-center py-8">
                                         <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
                                         <p className="text-lg font-semibold">You have already applied!</p>

@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SlidersHorizontal } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -112,8 +112,8 @@ export function JobFilters({ onChange }: JobFiltersProps) {
   const [selectedTypes, setSelectedTypes] = useState<JobType[]>([])
   const [remote, setRemote] = useState(false)
   const [hybrid, setHybrid] = useState(false)
+  const [open, setOpen] = useState(false)
 
-  // كل ما يتغير أي حاجة → نبعت الفلاتر للـ parent (الـ jobs page)
   useEffect(() => {
     onChange({
       search: search.trim(),
@@ -149,7 +149,7 @@ export function JobFilters({ onChange }: JobFiltersProps) {
       </aside>
 
       {/* Mobile Sheet */}
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" className="lg:hidden w-full mb-6">
             <SlidersHorizontal className="mr-2 h-4 w-4" />
@@ -168,6 +168,18 @@ export function JobFilters({ onChange }: JobFiltersProps) {
           <div className="mt-6">
             <FiltersContent {...props} />
           </div>
+          <SheetFooter className="mt-8">
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={() => {
+                setSearch("");
+                setLocation("");
+                setSelectedTypes([]);
+                setRemote(false);
+                setHybrid(false);
+              }}>Reset</Button>
+              <Button type="button" onClick={() => setOpen(false)}>Apply</Button>
+            </div>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     </>
