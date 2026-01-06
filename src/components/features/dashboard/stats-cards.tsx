@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, Calendar, MapPin, BarChart2, Users, TrendingUp } from "lucide-react";
+import { Briefcase, TrendingUp, Eye, MousePointerClick } from "lucide-react";
 
 interface StatCardProps {
     title: string;
@@ -32,11 +32,11 @@ function StatCard({ title, value, description, icon }: StatCardProps) {
 interface StatsCardsProps {
     totalJobs: number;
     newThisWeek: number;
-    remotePercent: number;
-    topCategory: string;
+    totalViews: number;
+    avgConversion: number;
 }
 
-export function StatsCards({ totalJobs, newThisWeek, remotePercent, topCategory }: StatsCardsProps) {
+export function StatsCards({ totalJobs, newThisWeek, totalViews, avgConversion }: StatsCardsProps) {
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -52,16 +52,16 @@ export function StatsCards({ totalJobs, newThisWeek, remotePercent, topCategory 
                 icon={<TrendingUp className="text-emerald-500" />}
             />
             <StatCard
-                title="Remote Ratio"
-                value={`${remotePercent}%`}
-                description="Of total jobs"
-                icon={<MapPin />}
+                title="Total Views"
+                value={totalViews.toLocaleString()}
+                description="Aggregated view count"
+                icon={<Eye />}
             />
             <StatCard
-                title="Top Category"
-                value={topCategory}
-                description="Most active type"
-                icon={<BarChart2 />}
+                title="Avg. Conversion"
+                value={`${avgConversion}%`}
+                description="Views to applications"
+                icon={<MousePointerClick />}
             />
         </div>
     );

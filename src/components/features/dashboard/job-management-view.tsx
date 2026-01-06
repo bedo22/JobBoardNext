@@ -4,7 +4,7 @@ import { Job } from "@/types/app";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, ExternalLink, Edit, Users, Trash2, Loader2 } from "lucide-react";
+import { MoreVertical, ExternalLink, Edit, Users, Trash2, Loader2, Eye } from "lucide-react";
 import Link from "next/link";
 import { deleteJob } from "@/app/dashboard/jobs/actions";
 import { useActionState, useEffect } from "react";
@@ -68,10 +68,24 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
                                         <span>•</span>
                                         <span className="capitalize">{job.location_type}</span>
                                     </div>
+                                    <div className="flex items-center gap-4 mt-2">
+                                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                                            <Eye className="h-3.5 w-3.5" />
+                                            {job.views || 0} Views
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                                            <Users className="h-3.5 w-3.5" />
+                                            {job.applications?.length || 0} Apps
+                                        </div>
+                                        {job.views && job.views > 0 && (
+                                            <div className="text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded border border-primary/10">
+                                                {Math.round(((job.applications?.length || 0) / job.views) * 100)}% Conv.
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    {/* Desktop Quick Actions */}
                                     <div className="hidden sm:flex items-center gap-2">
                                         <Button size="sm" variant="outline" asChild className="gap-2">
                                             <Link href={`/dashboard/applicants/${job.id}`}>
@@ -85,7 +99,6 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
                                         </Button>
                                     </div>
 
-                                    {/* More Menu */}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -99,7 +112,6 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
                                                 </Link>
                                             </DropdownMenuItem>
 
-                                            {/* Mobile-only view applicants/edit */}
                                             <DropdownMenuItem asChild className="sm:hidden">
                                                 <Link href={`/dashboard/applicants/${job.id}`} className="gap-2">
                                                     <Users className="h-4 w-4" /> View Applicants

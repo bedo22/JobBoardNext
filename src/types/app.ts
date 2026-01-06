@@ -1,7 +1,10 @@
 import type { Database } from "@/types/supabase"
 
 // Base Types from Supabase
-export type Job = Database['public']['Tables']['jobs']['Row']
+export type Job = Database['public']['Tables']['jobs']['Row'] & {
+    views?: number;
+    applications?: { id: string }[];
+}
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Application = Database['public']['Tables']['applications']['Row']
 

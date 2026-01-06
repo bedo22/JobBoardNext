@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, MapPin, Clock, DollarSign, Briefcase, CheckCircle } from "lucide-react"
-import { ApplyDialog } from "@/components/apply-dialog"
+import { ApplyDialog } from "@/components/features/jobs/apply-dialog"
 import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from 'react-markdown'
+import { ViewTracker } from "@/components/features/jobs/view-tracker"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from 'next'
@@ -16,8 +17,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const { id } = await params
     const supabase = await createClient()
     const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
-    const { data: { user } } = await supabase.auth.getUser()
-    const isOwner = user?.id && job ? user.id === job.employer_id : false
 
     if (!job) return { title: 'Job Not Found' }
 
@@ -74,6 +73,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
     return (
         <div className="container py-10 max-w-5xl">
+            {/* View Tracker Client Component */}
+            <ViewTracker jobId={id} />
             {/* Back button */}
             <Link href="/jobs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
                 <ArrowLeft className="h-5 w-5" /> Back to jobs

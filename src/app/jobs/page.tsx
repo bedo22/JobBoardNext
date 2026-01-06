@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { JobCard } from "@/components/job-card"
-import { JobFilters } from "@/components/job-filters"
+import { JobCard } from "@/components/features/jobs/job-card"
+import { JobFilters } from "@/components/features/jobs/job-filters"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { useJobs } from "@/hooks/use-jobs"
@@ -73,8 +73,8 @@ export default function JobsPage() {
             <h1 className="text-4xl font-bold">All Jobs</h1>
             <p className="text-muted-foreground mt-2">
               {jobs.length} {jobs.length === 1 ? "job" : "jobs"} found
-              </p>
-              <p className="sr-only" aria-live="polite">{jobs.length} {jobs.length === 1 ? 'job' : 'jobs'} found</p>
+            </p>
+            <p className="sr-only" aria-live="polite">{jobs.length} {jobs.length === 1 ? 'job' : 'jobs'} found</p>
             <p className="text-muted-foreground mt-2">
             </p>
           </div>

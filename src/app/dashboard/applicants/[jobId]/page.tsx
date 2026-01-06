@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
@@ -11,11 +11,11 @@ import { Loader2, ArrowLeft, FileText, Download, CheckCircle2, XCircle, Clock, S
 import { formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { updateApplicationStatus, getOrCreateConversation } from "../actions";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ChatWindow } from "@/components/dashboard/chat-window";
+import { updateApplicationStatus } from "@/actions/applications";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ChatWindow } from "@/components/features/messaging/chat-window";
+import { useChat } from "@/hooks/use-chat";
 import { MessageSquare } from "lucide-react";
 import type { Job, ApplicationWithProfile } from "@/types/app";
 
@@ -29,13 +29,9 @@ export default function JobApplicantsPage() {
     const [applicants, setApplicants] = useState<ApplicationWithProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [activeChat, setActiveChat] = useState<{
-        conversationId: string;
-        applicant: ApplicationWithProfile;
-    } | null>(null);
-    const [isChatOpening, setIsChatOpening] = useState(false);
+    const { activeChat, isChatOpening, openChat, closeChat } = useChat();
 
-    const fetchApplicants = async () => {
+    const fetchApplicants = useCallback(async () => {
         try {
             const { data: appsData, error: appsError } = await supabase
                 .from("applications")
@@ -48,7 +44,7 @@ export default function JobApplicantsPage() {
         } catch (error) {
             console.error("Error fetching applicants:", error);
         }
-    };
+    }, [jobId]);
 
     useEffect(() => {
         if (isAuthLoading) return;
@@ -83,7 +79,7 @@ export default function JobApplicantsPage() {
         if (jobId) {
             fetchData();
         }
-    }, [isEmployer, isAuthLoading, jobId, router]);
+    }, [isEmployer, isAuthLoading, jobId, router, fetchApplicants]);
 
     const handleStatusChange = async (appId: string, newStatus: string) => {
         startTransition(async () => {
@@ -99,23 +95,14 @@ export default function JobApplicantsPage() {
 
     const handleOpenChat = async (applicant: ApplicationWithProfile) => {
         if (!job || !applicant.profiles) return;
-        setIsChatOpening(true);
-        try {
-            const result = await getOrCreateConversation(jobId, applicant.seeker_id, job.employer_id);
-            if (result.conversationId) {
-                setActiveChat({
-                    conversationId: result.conversationId,
-                    applicant
-                });
-            } else {
-                toast.error(result.error || "Could not open chat");
-            }
-        } catch (error) {
-            console.error("Chat error:", error);
-            toast.error("Failed to start conversation");
-        } finally {
-            setIsChatOpening(false);
-        }
+        await openChat({
+            jobId,
+            seekerId: applicant.seeker_id,
+            employerId: job.employer_id,
+            participantName: applicant.profiles.full_name || "Applicant",
+            participantAvatar: applicant.profiles.avatar_url || null,
+            participantId: applicant.seeker_id
+        });
     };
 
     const getStatusIcon = (status: string | null) => {
@@ -264,18 +251,18 @@ export default function JobApplicantsPage() {
             </div>
 
             {/* Chat Sheet */}
-            <Sheet open={!!activeChat} onOpenChange={(open) => !open && setActiveChat(null)}>
+            <Sheet open={!!activeChat} onOpenChange={(open) => !open && closeChat()}>
                 <SheetContent side="right" className="sm:max-w-[500px] p-0">
                     <SheetHeader className="p-6 border-b sr-only">
-                        <SheetTitle>Chat with {activeChat?.applicant.profiles?.full_name}</SheetTitle>
+                        <SheetTitle>Chat with {activeChat?.participantName}</SheetTitle>
                     </SheetHeader>
                     {activeChat && (
                         <ChatWindow
                             conversationId={activeChat.conversationId}
                             otherParticipant={{
-                                id: activeChat.applicant.seeker_id,
-                                full_name: activeChat.applicant.profiles?.full_name || "Applicant",
-                                avatar_url: activeChat.applicant.profiles?.avatar_url || null
+                                id: activeChat.participantId,
+                                full_name: activeChat.participantName,
+                                avatar_url: activeChat.participantAvatar
                             }}
                         />
                     )}

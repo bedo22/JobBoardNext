@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { generateProfileBio } from "@/lib/ai";
+import { generateProfileBio as generateBio } from "@/lib/ai";
 import { Database } from "@/types/supabase";
 
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
@@ -45,9 +45,9 @@ export async function generateAiBio(params: {
     }
 
     try {
-        const bio = await generateProfileBio(params);
+        const bio = await generateBio(params);
         return { bio };
-    } catch (error) {
+    } catch {
         return { error: "Failed to generate bio" };
     }
 }

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/profile/profile-form";
-import { UserCheck, Building2, User } from "lucide-react";
+import { UserCheck, Building2 } from "lucide-react";
 
 export const metadata = {
     title: "Your Profile | JobBoard",

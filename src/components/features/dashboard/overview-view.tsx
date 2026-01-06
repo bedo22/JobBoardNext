@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Job } from "@/types/app";
-import { StatsCards } from "./stats-cards";
+import { StatsCards } from "@/components/features/dashboard/stats-cards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Briefcase, Plus } from "lucide-react";
@@ -13,24 +14,13 @@ interface OverviewViewProps {
 }
 
 export function OverviewView({ jobs, onSwitchTab }: OverviewViewProps) {
-    // Basic stats (No filtering needed for overview usually)
+    const [now] = useState(() => Date.now());
     const totalJobs = jobs.length;
-    const newThisWeek = jobs.filter(j => j.created_at && (Date.now() - new Date(j.created_at as string).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
-    const remoteJobs = jobs.filter(j => j.location_type === 'remote').length;
-    const remotePercent = totalJobs ? Math.round((remoteJobs / totalJobs) * 100) : 0;
+    const newThisWeek = jobs.filter(j => j.created_at && (now - new Date(j.created_at as string).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
+    const totalViews = jobs.reduce((acc, j) => acc + (j.views || 0), 0);
+    const totalApps = jobs.reduce((acc, j) => acc + (j.applications?.length || 0), 0);
+    const avgConversion = totalViews > 0 ? Math.round((totalApps / totalViews) * 100) : 0;
 
-    // Most common category
-    const jobDistribution = jobs.reduce((acc: Record<string, number>, job) => {
-        const type = job.type || 'Other';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-    }, {});
-    const entries = Object.entries(jobDistribution);
-    const topCategory = entries.length > 0
-        ? entries.sort((a, b) => b[1] - a[1])[0][0].replace(/-/g, ' ')
-        : "—";
-
-    // Recent jobs
     const recentJobs = [...jobs]
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
         .slice(0, 3);
@@ -40,8 +30,8 @@ export function OverviewView({ jobs, onSwitchTab }: OverviewViewProps) {
             <StatsCards
                 totalJobs={totalJobs}
                 newThisWeek={newThisWeek}
-                remotePercent={remotePercent}
-                topCategory={topCategory.charAt(0).toUpperCase() + topCategory.slice(1)}
+                totalViews={totalViews}
+                avgConversion={avgConversion}
             />
 
             <div className="grid gap-6 md:grid-cols-3">

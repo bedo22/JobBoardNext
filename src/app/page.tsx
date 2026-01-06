@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight, Briefcase, Users, CheckCircle } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
-import { JobCard } from "@/components/job-card"
+import { JobCard } from "@/components/features/jobs/job-card"
 
 export const dynamic = 'force-dynamic'
 
@@ -20,12 +20,12 @@ export default async function Index() {
       <section className="relative overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-24 min-h-[calc(100svh-4rem)] flex items-center">
         {/* Optional dot grid background */}
         <div className="pointer-events-none absolute inset-0 -z-0 bg-grid-pattern opacity-60 dark:opacity-40" />
-          {/* Decorative background */}
-          <div className="pointer-events-none absolute inset-0 -z-0">
-            <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/ blur-3xl" />
-            <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-emerald-300/20 blur-3xl dark:bg-emerald-400/10" />
-            <div className="absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_0%,theme(colors.primary/8),transparent_60%)]" />
-          </div>
+        {/* Decorative background */}
+        <div className="pointer-events-none absolute inset-0 -z-0">
+          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/ blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-emerald-300/20 blur-3xl dark:bg-emerald-400/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_0%,theme(colors.primary/8),transparent_60%)]" />
+        </div>
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -69,7 +69,7 @@ export default async function Index() {
               <Button variant="ghost">View All Jobs →</Button>
             </Link>
           </div>
-          
+
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {latestJobs && latestJobs.length > 0 ? (
               latestJobs.map((job) => (

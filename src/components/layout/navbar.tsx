@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { NotificationBell } from "@/components/features/notifications/notification-bell"
 
 export function Navbar() {
   const { user, profile, signOut, loading } = useAuth()
@@ -61,6 +62,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {/* Theme Toggle - Always visible */}
           <ThemeToggle />
+          {user && <NotificationBell />}
 
           {!loading && (
             <>

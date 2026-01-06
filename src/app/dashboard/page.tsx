@@ -10,10 +10,10 @@ import Link from "next/link"
 import { Loader2, LayoutDashboard, BarChart3, ListChecks } from "lucide-react"
 
 // Modular Views
-import { OverviewView } from "@/components/dashboard/overview-view"
-import { AnalyticsView } from "@/components/dashboard/analytics-view"
-import { JobManagementView } from "@/components/dashboard/job-management-view"
-import { SeekerView } from "@/components/dashboard/seeker-view"
+import { OverviewView } from "@/components/features/dashboard/overview-view"
+import { AnalyticsView } from "@/components/features/dashboard/analytics-view"
+import { JobManagementView } from "@/components/features/dashboard/job-management-view"
+import { SeekerView } from "@/components/features/dashboard/seeker-view"
 
 export default function DashboardPage() {
   const { profile, isEmployer, isSeeker, loading: isAuthLoading } = useAuth()
@@ -27,7 +27,7 @@ export default function DashboardPage() {
       try {
         const { data } = await supabase
           .from('jobs')
-          .select('*')
+          .select('*, applications(id)')
           .eq('employer_id', profile.id)
           .order('created_at', { ascending: false });
 

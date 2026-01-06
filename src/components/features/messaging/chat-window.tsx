@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Send, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { sendMessage } from "@/actions/messaging";
 import type { Database } from "@/types/supabase";
 
 type Message = Database["public"]["Tables"]["messages"]["Row"];
@@ -34,7 +35,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
     const [sending, setSending] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Initial Load
     useEffect(() => {
         const fetchMessages = async () => {
             try {
@@ -45,7 +45,7 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
                     .order("created_at", { ascending: true });
 
                 if (error) throw error;
-                setMessages(data || [] as any);
+                setMessages((data as unknown as MessageWithProfile[]) || []);
             } catch (error) {
                 console.error("Error fetching messages:", error);
             } finally {
@@ -58,7 +58,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
         }
     }, [conversationId]);
 
-    // Realtime Subscription
     useEffect(() => {
         if (!conversationId) return;
 
@@ -74,8 +73,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
                 },
                 async (payload) => {
                     const newMessage = payload.new as Message;
-
-                    // Fetch profile for the new message
                     const { data: profileData } = await supabase
                         .from("profiles")
                         .select("*")
@@ -97,7 +94,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
         };
     }, [conversationId]);
 
-    // Auto-scroll
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -110,13 +106,8 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
 
         setSending(true);
         try {
-            const { error } = await supabase.from("messages").insert({
-                conversation_id: conversationId,
-                sender_id: user.id,
-                content: newMessage.trim(),
-            });
-
-            if (error) throw error;
+            const result = await sendMessage(conversationId, newMessage.trim());
+            if (result.error) throw new Error(result.error);
             setNewMessage("");
         } catch (error) {
             console.error("Error sending message:", error);
@@ -136,7 +127,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
 
     return (
         <div className="flex flex-col h-[600px] border rounded-lg bg-background shadow-sm overflow-hidden">
-            {/* Header */}
             <div className="p-4 border-b bg-muted/30 flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                     <AvatarImage src={otherParticipant.avatar_url ?? undefined} />
@@ -148,7 +138,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
                 </div>
             </div>
 
-            {/* Messages Area */}
             <div
                 className="flex-1 p-4 overflow-y-auto"
                 ref={scrollRef}
@@ -185,7 +174,6 @@ export function ChatWindow({ conversationId, otherParticipant }: ChatWindowProps
                 </div>
             </div>
 
-            {/* Input Area */}
             <form onSubmit={handleSendMessage} className="p-4 border-t bg-muted/30 flex gap-2">
                 <Input
                     placeholder="Type a message..."

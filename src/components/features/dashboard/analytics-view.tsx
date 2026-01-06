@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JobDistributionChart } from "@/components/analytics/job-distribution-chart";
 import { Job } from "@/types/app";
-import { StatsCards } from "./stats-cards";
+import { StatsCards } from "@/components/features/dashboard/stats-cards";
 
 interface AnalyticsViewProps {
     jobs: Job[];
@@ -13,9 +13,7 @@ interface AnalyticsViewProps {
 
 export function AnalyticsView({ jobs }: AnalyticsViewProps) {
     const [range, setRange] = useState<'7d' | '30d' | 'all'>('30d');
-
-    // Time-range filter
-    const now = Date.now();
+    const [now] = useState(() => Date.now());
     const msInDay = 24 * 60 * 60 * 1000;
 
     const withinRange = (created?: string | null) => {
@@ -27,7 +25,6 @@ export function AnalyticsView({ jobs }: AnalyticsViewProps) {
 
     const filteredJobs = range === 'all' ? jobs : jobs.filter(j => withinRange(j.created_at as string | null));
 
-    // Calculate distributions
     const jobDistribution = filteredJobs.reduce((acc: Record<string, number>, job) => {
         const type = job.type || 'Other';
         acc[type] = (acc[type] || 0) + 1;
@@ -39,15 +36,11 @@ export function AnalyticsView({ jobs }: AnalyticsViewProps) {
         value: jobDistribution[key]
     }));
 
-    // KPI data
     const totalJobs = filteredJobs.length;
-    const newThisWeek = jobs.filter(j => j.created_at && (Date.now() - new Date(j.created_at as string).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
-    const remotePercent = totalJobs ? Math.round((filteredJobs.filter(j => j.location_type === 'remote').length / totalJobs) * 100) : 0;
-
-    const entries = Object.entries(jobDistribution);
-    const topCategory = entries.length > 0
-        ? entries.sort((a, b) => b[1] - a[1])[0][0].replace(/-/g, ' ')
-        : "N/A";
+    const newThisWeek = jobs.filter(j => j.created_at && (now - new Date(j.created_at as string).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
+    const totalViews = filteredJobs.reduce((acc, j) => acc + (j.views || 0), 0);
+    const totalApps = filteredJobs.reduce((acc, j) => acc + (j.applications?.length || 0), 0);
+    const avgConversion = totalViews > 0 ? Math.round((totalApps / totalViews) * 100) : 0;
 
     return (
         <div className="space-y-6">
@@ -63,8 +56,8 @@ export function AnalyticsView({ jobs }: AnalyticsViewProps) {
             <StatsCards
                 totalJobs={totalJobs}
                 newThisWeek={newThisWeek}
-                remotePercent={remotePercent}
-                topCategory={topCategory.charAt(0).toUpperCase() + topCategory.slice(1)}
+                totalViews={totalViews}
+                avgConversion={avgConversion}
             />
 
             <div className="grid gap-6 md:grid-cols-2">

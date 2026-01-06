@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, Save, Globe, Github, Linkedin, Twitter, X, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { updateProfile, generateAiBio } from "@/app/profile/actions";
+import { updateProfile, generateAiBio } from "@/actions/profile";
 import type { Database } from "@/types/supabase";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -46,7 +46,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             } else {
                 toast.error(result.error);
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred while saving");
         } finally {
             setLoading(false);
@@ -73,7 +73,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             } else {
                 toast.error(result.error || "Failed to generate bio");
             }
-        } catch (error) {
+        } catch {
             toast.error("AI generation failed");
         } finally {
             setIsGenerating(false);
@@ -288,7 +288,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                             <CardTitle className="text-sm">Pro Tip</CardTitle>
                         </CardHeader>
                         <CardContent className="text-xs text-muted-foreground leading-relaxed">
-                            A complete profile increases your visibility to potential {profile.role === "employer" ? "candidates" : "employers"} by up to 3x. Don't forget to use the AI Bio generator!
+                            A complete profile increases your visibility to potential {profile.role === "employer" ? "candidates" : "employers"} by up to 3x. Don&apos;t forget to use the AI Bio generator!
                         </CardContent>
                     </Card>
                 </div>
