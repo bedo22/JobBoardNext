@@ -32,11 +32,14 @@ export function SeekerView() {
             try {
                 const { data, error } = await supabase
                     .from("applications")
-                    .select("*, jobs:job_id(*, profiles:employer_id(*))")
+                    .select("*, jobs!job_id(*, profiles!employer_id(*))")
                     .eq("seeker_id", user.id)
                     .order("applied_at", { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error("Error fetching seeker applications:", error);
+                    throw error;
+                }
                 setApplications(data || []);
             } catch (error) {
                 console.error("Error fetching seeker applications:", error);

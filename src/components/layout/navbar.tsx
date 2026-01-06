@@ -36,21 +36,23 @@ export function Navbar() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur-md supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          <Briefcase className="h-8 w-8 text-primary" />
-          <span className="hidden sm:inline">JobBoard</span>
+        <Link href="/" className="flex items-center gap-3 font-black text-2xl group transition-all">
+          <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all group-hover:scale-110 group-hover:rotate-3">
+            <Briefcase className="h-7 w-7" />
+          </div>
+          <span className="hidden sm:inline bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">JobBoard</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-2">
           {navLinks.map(link => (
             <Link
               key={link.path}
               href={link.path}
-              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === link.path ? "text-primary" : "text-muted-foreground"
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all hover:bg-primary/10 hover:text-primary ${pathname === link.path ? "bg-primary/10 text-primary" : "text-muted-foreground"
                 }`}
             >
               {link.name}
@@ -71,7 +73,7 @@ export function Navbar() {
                   {/* Desktop */}
                   <div className="hidden md:flex items-center gap-3">
                     <Link href="/dashboard">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="font-bold rounded-xl border-primary/20 hover:bg-primary/10 hover:border-primary/40">
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Dashboard
                       </Button>
@@ -139,8 +141,8 @@ export function Navbar() {
               ) : (
                 <>
                   <div className="hidden md:flex items-center gap-3">
-                    <Link href="/login"><Button variant="ghost">Login</Button></Link>
-                    <Link href="/signup"><Button>Sign Up</Button></Link>
+                    <Link href="/login"><Button variant="ghost" className="font-bold rounded-xl hover:bg-primary/10">Login</Button></Link>
+                    <Link href="/signup"><Button className="font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform">Sign Up</Button></Link>
                   </div>
 
                   <Sheet>

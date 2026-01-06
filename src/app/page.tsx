@@ -24,7 +24,7 @@ export default async function Index() {
     return (
         <div className="relative">
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+            <section className="relative pt-8 pb-20 md:pt-12 md:pb-32 overflow-hidden">
                 <BackgroundMesh />
                 
                 <div className="container relative z-10">
