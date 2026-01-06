@@ -10,6 +10,7 @@ const EnvSchema = z.object({
   STRIPE_PRICE_ID: z.string().optional(),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(10).optional(),
   AI_GOOGLE_MODEL: z.string().optional(),
+  NEXT_PUBLIC_ENABLE_PAYMENTS: z.string().optional(),
 })
 
 // Read from process.env but validate once at module load
@@ -23,6 +24,7 @@ const parsed = EnvSchema.safeParse({
   STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID,
   GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
   AI_GOOGLE_MODEL: process.env.AI_GOOGLE_MODEL,
+  NEXT_PUBLIC_ENABLE_PAYMENTS: process.env.NEXT_PUBLIC_ENABLE_PAYMENTS,
 })
 
 if (!parsed.success) {
@@ -32,3 +34,9 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data
+
+// Feature flags
+export const features = {
+  paymentsEnabled: env.NEXT_PUBLIC_ENABLE_PAYMENTS === 'true',
+  stripeConfigured: !!(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && env.STRIPE_SECRET_KEY),
+}

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createCheckoutSession } from "@/actions/stripe";
+import { features } from "@/lib/env";
 
 interface Plan {
     name: string;
@@ -33,6 +34,15 @@ export function PricingCards({ plans }: PricingCardsProps) {
     const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
     const handleSubscribe = async (plan: Plan) => {
+        // Demo mode - payments disabled
+        if (!features.paymentsEnabled) {
+            toast.info("💡 Payment Demo Mode", {
+                description: "This is a demo project. In production, this would redirect to Stripe Checkout.",
+                duration: 5000,
+            });
+            return;
+        }
+
         if (!plan.priceId) {
             toast.info("This plan is not available yet.");
             return;
@@ -106,7 +116,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
                             {loadingPriceId === plan.priceId ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : null}
-                            Subscribe
+                            {features.paymentsEnabled ? "Subscribe" : "View Demo"}
                         </Button>
                     </CardFooter>
                 </Card>
