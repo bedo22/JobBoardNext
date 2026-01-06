@@ -2,7 +2,6 @@
 
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 
 export async function createCheckoutSession(priceId: string) {
     const supabase = await createClient();
@@ -62,8 +61,9 @@ export async function createCheckoutSession(priceId: string) {
         // Return the URL for the client to redirect
         return { url: session.url };
 
-    } catch (error: any) {
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to initiate payment.';
         console.error('Stripe Checkout Error:', error);
-        return { error: error.message || 'Failed to initiate payment.' };
+        return { error: message };
     }
 }

@@ -5,7 +5,8 @@ if (!process.env.STRIPE_SECRET_KEY && process.env.NODE_ENV === 'production') {
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2025-12-18.acacia' as any, // Using the version compatible with the SDK
+    // @ts-expect-error: Stripe SDK types are stricter than necessary for versioning
+    apiVersion: '2024-12-18.acacia',
     appInfo: {
         name: 'JobBoard Elite',
         version: '1.0.0',

@@ -1,13 +1,13 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth"
-import { supabase } from "@/lib/supabaseClient"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Job } from "@/types/app"
 import Link from "next/link"
 import { Loader2, LayoutDashboard, BarChart3, ListChecks } from "lucide-react"
+import { getEmployerJobsWithStats } from "@/actions/jobs"
 
 // Modular Views
 import { OverviewView } from "@/components/features/dashboard/overview-view"
@@ -18,6 +18,7 @@ import { SeekerView } from "@/components/features/dashboard/seeker-view"
 export default function DashboardPage() {
   const { profile, isEmployer, isSeeker, loading: isAuthLoading } = useAuth()
   const [myJobs, setMyJobs] = useState<Job[]>([])
+  const [jobStats, setJobStats] = useState<{ newThisWeek: number }>({ newThisWeek: 0 })
   const [activeTab, setActiveTab] = useState("overview")
   const [isLoadingData, setIsLoadingData] = useState(true)
 
@@ -25,13 +26,9 @@ export default function DashboardPage() {
     async function fetchEmployerData() {
       if (!profile?.id) return;
       try {
-        const { data } = await supabase
-          .from('jobs')
-          .select('*, applications(id)')
-          .eq('employer_id', profile.id)
-          .order('created_at', { ascending: false });
-
-        setMyJobs(data || []);
+        const result = await getEmployerJobsWithStats(profile.id);
+        setMyJobs(result.jobs);
+        setJobStats(result.stats);
       } catch (error) {
         console.error("Failed to fetch jobs:", error);
       } finally {
@@ -97,7 +94,7 @@ export default function DashboardPage() {
 
           <div className="mt-2 min-h-[400px]">
             <TabsContent value="overview" className="m-0 focus-visible:outline-none">
-              <OverviewView jobs={myJobs} onSwitchTab={setActiveTab} />
+              <OverviewView jobs={myJobs} newThisWeek={jobStats.newThisWeek} onSwitchTab={setActiveTab} />
             </TabsContent>
 
             <TabsContent value="analytics" className="m-0 focus-visible:outline-none">

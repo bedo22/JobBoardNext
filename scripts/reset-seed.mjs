@@ -9,7 +9,11 @@ function requireEnv(name) {
 
 async function main() {
   const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL')
-  const serviceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY')
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+
+  if (!serviceRoleKey) {
+      throw new Error('Missing required env: SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY)')
+  }
 
   if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PROD_SEED !== 'true') {
     throw new Error('Refusing to run reset in production. Set ALLOW_PROD_SEED=true to override (not recommended).')
