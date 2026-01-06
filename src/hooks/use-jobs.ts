@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from 'react'
+import { useEffect, useRef, useCallback, useReducer } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { JobType } from '@/types/app'
-
 import type { Job } from "@/types/app"
 
 export type Filters = {
@@ -13,6 +12,69 @@ export type Filters = {
   hybrid: boolean
 }
 
+const PAGE_SIZE = 10
+
+/**
+ * Improved architecture using useReducer pattern for complex state
+ * This eliminates circular dependencies and provides predictable state updates
+ */
+type State = {
+  jobs: Job[]
+  loading: boolean
+  hasMore: boolean
+  page: number
+  error: string | null
+}
+
+type Action =
+  | { type: 'FETCH_START' }
+  | { type: 'FETCH_SUCCESS'; payload: { jobs: Job[]; hasMore: boolean; reset: boolean } }
+  | { type: 'FETCH_ERROR'; payload: string }
+  | { type: 'RESET' }
+
+function jobsReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'FETCH_START':
+      return { ...state, loading: true, error: null }
+    
+    case 'FETCH_SUCCESS':
+      const { jobs: newJobs, hasMore, reset } = action.payload
+      
+      if (reset) {
+        return {
+          ...state,
+          jobs: newJobs,
+          hasMore,
+          page: 1,
+          loading: false,
+          error: null,
+        }
+      }
+      
+      // Prevent duplicates
+      const existingIds = new Set(state.jobs.map(j => j.id))
+      const uniqueNewJobs = newJobs.filter(job => !existingIds.has(job.id))
+      
+      return {
+        ...state,
+        jobs: [...state.jobs, ...uniqueNewJobs],
+        hasMore,
+        page: state.page + 1,
+        loading: false,
+        error: null,
+      }
+    
+    case 'FETCH_ERROR':
+      return { ...state, loading: false, error: action.payload }
+    
+    case 'RESET':
+      return { jobs: [], loading: true, hasMore: true, page: 0, error: null }
+    
+    default:
+      return state
+  }
+}
+
 export function useJobs(filters: Filters = {
   search: '',
   location: '',
@@ -20,82 +82,107 @@ export function useJobs(filters: Filters = {
   remote: false,
   hybrid: false
 }) {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(0)
-  const [hasMore, setHasMore] = useState(true)
+  const [state, dispatch] = useReducer(jobsReducer, {
+    jobs: [],
+    loading: true,
+    hasMore: true,
+    page: 0,
+    error: null,
+  })
 
-  const PAGE_SIZE = 10
+  // Use ref to track if a fetch is in progress (prevents race conditions)
+  const fetchingRef = useRef(false)
+  
+  // Serialize filters for stable comparison
+  const filtersKey = JSON.stringify(filters)
 
-  const fetchJobs = React.useCallback(async (reset = false) => {
-    setLoading(true)
-    const from = reset ? 0 : page * PAGE_SIZE
+  const fetchJobs = useCallback(async (reset = false) => {
+    // Prevent concurrent fetches
+    if (fetchingRef.current) return
+    fetchingRef.current = true
+
+    dispatch({ type: 'FETCH_START' })
+    
+    const currentPage = reset ? 0 : state.page
+    const from = currentPage * PAGE_SIZE
     const to = from + PAGE_SIZE - 1
 
-    let query = supabase
-      .from('jobs')
-      .select('*', { count: 'exact' })
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .range(from, to)
+    try {
+      let query = supabase
+        .from('jobs')
+        .select('*', { count: 'exact' })
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .range(from, to)
 
-    // Text search
-    if (filters.search) {
-      query = query.ilike('title', `%${filters.search}%`)
+      // Apply filters
+      if (filters.search) {
+        query = query.ilike('title', `%${filters.search}%`)
+      }
+
+      if (filters.location) {
+        query = query.ilike('location', `%${filters.location}%`)
+      }
+
+      if (filters.type.length > 0) {
+        query = query.in('type', filters.type)
+      }
+
+      if (filters.remote && filters.hybrid) {
+        query = query.in('location_type', ['remote', 'hybrid'])
+      } else if (filters.remote) {
+        query = query.eq('location_type', 'remote')
+      } else if (filters.hybrid) {
+        query = query.eq('location_type', 'hybrid')
+      }
+
+      const { data, count, error } = await query
+
+      if (error) throw error
+
+      const hasMore = count ? count > to + 1 : false
+      
+      dispatch({
+        type: 'FETCH_SUCCESS',
+        payload: { jobs: data || [], hasMore, reset },
+      })
+    } catch (error) {
+      console.error('Error fetching jobs:', error)
+      dispatch({
+        type: 'FETCH_ERROR',
+        payload: error instanceof Error ? error.message : 'Failed to fetch jobs',
+      })
+    } finally {
+      fetchingRef.current = false
     }
+  }, [state.page, filtersKey])
 
-    // Location
-    if (filters.location) {
-      query = query.ilike('location', `%${filters.location}%`)
+  const loadMore = useCallback(() => {
+    if (!state.loading && state.hasMore && !fetchingRef.current) {
+      void fetchJobs(false)
     }
+  }, [state.loading, state.hasMore, fetchJobs])
 
-    // Employment type (full-time, part-time, etc.)
-    if (filters.type.length > 0) {
-      query = query.in('type', filters.type)
-    }
-
-    // Remote & Hybrid
-    if (filters.remote && filters.hybrid) {
-      query = query.in('location_type', ['remote', 'hybrid'])
-    } else if (filters.remote) {
-      query = query.eq('location_type', 'remote')
-    } else if (filters.hybrid) {
-      query = query.eq('location_type', 'hybrid')
-    }
-
-    const { data, count, error } = await query
-
-    if (error) {
-      console.error(error)
-      setLoading(false)
-      return
-    }
-
-    setJobs(prev => reset ? data! : [...prev, ...data!])
-    setHasMore(count ? count > to + 1 : false)
-    setPage(prev => reset ? 1 : prev + 1)
-    setLoading(false)
-  }, [page, filters])
-
-  const loadMore = React.useCallback(() => {
-    if (!loading && hasMore) void fetchJobs(false)
-  }, [loading, hasMore, fetchJobs])
-  const refetch = React.useCallback(() => { void fetchJobs(true) }, [fetchJobs])
-
-  // Instant filtering for checkboxes and toggles (better UX for click actions)
-  const typeKey = React.useMemo(() => filters.type.join(','), [filters.type])
+  // Reset and fetch when filters change
   useEffect(() => {
-    const id = setTimeout(() => { refetch() }, 0) // schedule to avoid synchronous setState in effect
-    return () => clearTimeout(id)
-  }, [typeKey, filters.remote, filters.hybrid, refetch])
+    dispatch({ type: 'RESET' })
+    
+    // Debounce text inputs
+    const isTextFilter = filters.search || filters.location
+    const delay = isTextFilter ? 500 : 0
+    
+    const timer = setTimeout(() => {
+      void fetchJobs(true)
+    }, delay)
 
-  // Debounced filtering for text inputs (wait until user stops typing)
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      refetch()
-    }, 500)
-    return () => clearTimeout(delayDebounce)
-  }, [filters.search, filters.location, refetch])
+    return () => clearTimeout(timer)
+  }, [filtersKey]) // Only depends on serialized filters
 
-  return { jobs, loading, hasMore, loadMore, refetch }
+  return {
+    jobs: state.jobs,
+    loading: state.loading,
+    hasMore: state.hasMore,
+    error: state.error,
+    loadMore,
+  }
 }
