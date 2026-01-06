@@ -6,13 +6,18 @@ import { JobCard } from "@/components/features/jobs/job-card"
 
 export const dynamic = 'force-dynamic'
 
-export default async function Index() {
-  // Fetch latest 3 jobs
+async function getLatestJobs() {
+  'use cache'
   const { data: latestJobs } = await supabase
     .from('jobs')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(3)
+    .limit(6)
+  return latestJobs
+}
+
+export default async function Index() {
+  const latestJobs = await getLatestJobs()
 
   return (
     <>

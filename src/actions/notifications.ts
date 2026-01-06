@@ -10,13 +10,13 @@ import { revalidatePath } from 'next/cache'
  */
 async function getAdminClient() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
 
-    if (!supabaseServiceKey) {
-        throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
+    if (!supabaseSecretKey) {
+        throw new Error("Missing SUPABASE_SECRET_KEY environment variable");
     }
 
-    return createSupabaseClient(supabaseUrl, supabaseServiceKey);
+    return createSupabaseClient(supabaseUrl, supabaseSecretKey);
 }
 
 export async function sendNotification({
