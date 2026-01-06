@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 
@@ -13,6 +13,10 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: Request) {
+    // Return early if Stripe is not configured (demo mode)
+    if (!isStripeConfigured || !stripe) {
+        return new NextResponse('Stripe not configured', { status: 503 });
+    }
     const body = await req.text();
     const signature = (await headers()).get('Stripe-Signature') as string;
 

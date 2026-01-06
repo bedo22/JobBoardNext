@@ -1,9 +1,14 @@
 'use server'
 
-import { stripe } from '@/lib/stripe';
+import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 
 export async function createCheckoutSession(priceId: string) {
+    // Check if Stripe is configured
+    if (!isStripeConfigured || !stripe) {
+        return { error: 'Payment processing is not available in demo mode.' };
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
