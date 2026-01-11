@@ -18,7 +18,7 @@ export default function DashboardLayout({
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <SidebarInset className="flex w-full flex-col bg-muted/5">
-          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/80 px-6 backdrop-blur-xl">
+          <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/80 px-6 backdrop-blur-xl">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="-ml-1 text-primary hover:bg-primary/10 transition-colors" />
               <Separator orientation="vertical" className="mr-2 h-4" />

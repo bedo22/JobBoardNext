@@ -3,11 +3,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { generateProfileBio as generateBio } from "@/lib/ai";
-import { Database } from "@/types/supabase";
+import { profileSchema } from "@/lib/validation";
 
-type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
-
-export async function updateProfile(data: ProfileUpdate) {
+export async function updateProfile(rawData: unknown) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -15,9 +13,32 @@ export async function updateProfile(data: ProfileUpdate) {
         return { error: "Not authenticated" };
     }
 
+    // 1. Validate Input with Zod (Strict Shape Check)
+    const result = profileSchema.safeParse(rawData);
+
+    if (!result.success) {
+        return { error: "Invalid data: " + result.error.issues[0].message };
+    }
+
+    const data = result.data;
+
+    // 2. White-listing (Manual mapping ensures NO other fields slip through)
+    // Even though Zod handles this, manual mapping is a double-safety for critical updates.
+    const safeUpdate = {
+        full_name: data.full_name,
+        company_name: data.company_name,
+        bio: data.bio,
+        website_url: data.website_url,
+        github_url: data.github_url,
+        linkedin_url: data.linkedin_url,
+        twitter_url: data.twitter_url,
+        skills: data.skills,
+        updated_at: new Date().toISOString()
+    };
+
     const { error } = await supabase
         .from("profiles")
-        .update(data)
+        .update(safeUpdate)
         .eq("id", user.id);
 
     if (error) {
@@ -25,7 +46,7 @@ export async function updateProfile(data: ProfileUpdate) {
         return { error: "Failed to update profile" };
     }
 
-    revalidatePath("/profile");
+    revalidatePath("/dashboard/settings");
     revalidatePath("/dashboard");
 
     return { success: true };
