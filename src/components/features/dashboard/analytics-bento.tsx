@@ -14,13 +14,13 @@ import { motion } from "motion/react";
 import {
   Line,
   LineChart,
-  ResponsiveContainer,
   Bar,
   BarChart,
   Area,
   AreaChart,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 interface AnalyticsBentoProps {
   totalJobs: number;
@@ -90,11 +90,31 @@ export function AnalyticsBento({
   avgConversion,
   newThisWeek,
 }: AnalyticsBentoProps) {
+  // Chart Configuration using native CSS variables
+  const chartConfig = {
+    views: {
+      label: "Views",
+      color: "var(--chart-1)",
+    },
+    applicants: {
+      label: "Applicants",
+      color: "var(--chart-2)",
+    },
+    conversion: {
+      label: "Conversion",
+      color: "var(--chart-3)",
+    },
+    activity: {
+      label: "Activity",
+      color: "var(--chart-4)",
+    },
+  } satisfies ChartConfig
+
   return (
-    <BentoGrid className="md:auto-rows-[180px] lg:grid-cols-4">
+    <BentoGrid className="md:auto-rows-[140px] lg:grid-cols-4">
       {/* Total Jobs - Large */}
       <BentoGridItem
-        className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-indigo-500/10 to-indigo-500/5 border-indigo-500/20"
+        className="md:col-span-2 md:row-span-2 bg-linear-to-br from-indigo-500/10 to-indigo-500/5 border-indigo-500/20"
         header={
           <div className="flex flex-col h-full justify-between p-2">
             <StatHeader
@@ -103,28 +123,28 @@ export function AnalyticsBento({
               color="bg-indigo-500/20 text-indigo-500"
             />
             <div className="flex-1 flex items-center">
-              <div className="text-6xl font-black tracking-tighter">
+              <div className="text-5xl font-black tracking-tighter">
                 <NumberTicker value={totalJobs} />
               </div>
             </div>
-            <div className="h-[80px] w-full opacity-60">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[60px] w-full opacity-60">
+              <ChartContainer config={chartConfig} className="h-full w-full">
                 <AreaChart data={areaData}>
                   <defs>
                     <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <Area
                     type="monotone"
                     dataKey="views"
-                    stroke="#6366f1"
+                    stroke="var(--color-views)"
                     strokeWidth={2}
                     fill="url(#colorViews)"
                   />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
             <p className="text-xs text-muted-foreground font-semibold flex items-center gap-2">
               <span className="inline-flex items-center gap-1 text-emerald-500">
@@ -138,7 +158,7 @@ export function AnalyticsBento({
 
       {/* Total Views */}
       <BentoGridItem
-        className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20"
+        className="bg-linear-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20"
         header={
           <div className="flex flex-col h-full justify-between p-2">
             <StatHeader
@@ -149,18 +169,18 @@ export function AnalyticsBento({
             <div className="text-4xl font-black tracking-tighter">
               <NumberTicker value={totalViews} />
             </div>
-            <div className="h-[40px] w-full opacity-50">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[30px] w-full opacity-50">
+              <ChartContainer config={chartConfig} className="h-full w-full">
                 <LineChart data={sparklineData}>
                   <Line
                     type="monotone"
                     dataKey="value"
-                    stroke="#3b82f6"
+                    stroke="var(--color-applicants)"
                     strokeWidth={2}
                     dot={false}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         }
@@ -168,7 +188,7 @@ export function AnalyticsBento({
 
       {/* Total Applicants */}
       <BentoGridItem
-        className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border-emerald-500/20"
+        className="bg-linear-to-br from-emerald-500/10 to-emerald-500/5 border-emerald-500/20"
         header={
           <div className="flex flex-col h-full justify-between p-2">
             <StatHeader
@@ -179,12 +199,12 @@ export function AnalyticsBento({
             <div className="text-4xl font-black tracking-tighter">
               <NumberTicker value={totalApplicants} />
             </div>
-            <div className="h-[40px] w-full opacity-50">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[30px] w-full opacity-50">
+              <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart data={barData}>
-                  <Bar dataKey="value" fill="#10b981" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="value" fill="var(--color-conversion)" radius={[2, 2, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         }
@@ -192,7 +212,7 @@ export function AnalyticsBento({
 
       {/* Conversion Rate */}
       <BentoGridItem
-        className="bg-gradient-to-br from-violet-500/10 to-violet-500/5 border-violet-500/20"
+        className="bg-linear-to-br from-violet-500/10 to-violet-500/5 border-violet-500/20"
         header={
           <div className="flex flex-col h-full justify-between p-2">
             <StatHeader
@@ -211,7 +231,7 @@ export function AnalyticsBento({
               transition={{ delay: 0.5 }}
             >
               <motion.div
-                className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
+                className="h-full bg-linear-to-r from-violet-500 to-purple-500 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${avgConversion}%` }}
                 transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
@@ -223,7 +243,7 @@ export function AnalyticsBento({
 
       {/* Weekly Activity - Wide */}
       <BentoGridItem
-        className="md:col-span-2 bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20"
+        className="md:col-span-2 bg-linear-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20"
         header={
           <div className="flex flex-col h-full justify-between p-2">
             <StatHeader
@@ -231,17 +251,17 @@ export function AnalyticsBento({
               label="Weekly Activity"
               color="bg-orange-500/20 text-orange-500"
             />
-            <div className="h-[80px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[60px] w-full">
+              <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart data={barData}>
                   <Bar
                     dataKey="value"
-                    fill="#f97316"
+                    fill="var(--color-activity)"
                     radius={[4, 4, 0, 0]}
                     className="opacity-80"
                   />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
             <div className="flex justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
               {barData.map((d) => (

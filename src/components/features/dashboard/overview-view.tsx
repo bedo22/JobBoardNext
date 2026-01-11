@@ -27,9 +27,9 @@ export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewPro
         .slice(0, 4);
 
     return (
-        <div className="space-y-10 relative">
+        <div className="space-y-6 relative">
             <DotPattern className="opacity-30 mask-[radial-gradient(400px_circle_at_center,white,transparent)]" />
-            <div className="relative z-10 space-y-10">
+            <div className="relative z-10 space-y-6">
                 <AnalyticsBento
                     totalJobs={totalJobs}
                     totalViews={totalViews}

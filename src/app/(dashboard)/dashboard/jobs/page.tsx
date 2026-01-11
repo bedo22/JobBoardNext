@@ -4,10 +4,12 @@ import { useAuth } from "@/hooks/use-auth"
 import { useEffect, useState } from "react"
 import { Job } from "@/types/app"
 import { getEmployerJobsWithStats } from "@/actions/jobs"
-import { AnalyticsView } from "@/components/features/dashboard/analytics-view"
+import { JobManagementView } from "@/components/features/dashboard/job-management-view"
 import { Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
-export default function AnalyticsPage() {
+export default function JobsPage() {
     const { profile, loading: isAuthLoading } = useAuth()
     const [myJobs, setMyJobs] = useState<Job[]>([])
     const [isLoadingData, setIsLoadingData] = useState(true)
@@ -28,7 +30,7 @@ export default function AnalyticsPage() {
         if (!isAuthLoading && profile?.id) {
             fetchEmployerData();
         } else if (!isAuthLoading && !profile?.id) {
-            setIsLoadingData(false); // Auth loaded but no profile
+            setIsLoadingData(false); 
         }
     }, [profile, isAuthLoading])
 
@@ -36,16 +38,25 @@ export default function AnalyticsPage() {
         return (
             <div className="container py-32 flex flex-col items-center justify-center text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground animate-pulse">Loading analytics...</p>
+                <p className="text-muted-foreground animate-pulse">Loading jobs...</p>
             </div>
         );
     }
 
     return (
-        <AnalyticsView 
-            jobs={myJobs} 
-            title="Analytics" 
-            description="Global metrics and conversion performance." 
-        />
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight">My Jobs</h1>
+                    <p className="text-muted-foreground font-semibold">
+                        Create, edit, and manage your job listings.
+                    </p>
+                </div>
+                <Link href="/jobs/post">
+                    <Button size="lg" className="shadow-lg rounded-2xl font-black px-8">Post New Job</Button>
+                </Link>
+            </div>
+            <JobManagementView jobs={myJobs} />
+        </div>
     )
 }

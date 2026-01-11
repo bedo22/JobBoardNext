@@ -30,15 +30,15 @@ function StatCard({ title, value, description, icon, color, index }: StatCardPro
         >
             <Card className="relative overflow-hidden border-none shadow-xl bg-card/50 backdrop-blur-xl group transition-all hover:shadow-2xl hover:bg-card/80">
                 <div className={`absolute top-0 left-0 w-full h-1.5 bg-linear-to-r ${color}`} />
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{title}</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
+                    <CardTitle className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">{title}</CardTitle>
                     <div className={`p-2 rounded-lg bg-linear-to-br ${color} text-white shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3`}>
                         {icon}
                     </div>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-1">
-                        <div className="text-4xl font-black tracking-tight flex items-center">
+                        <div className="text-3xl font-black tracking-tight flex items-center">
                             {typeof value === 'number' ? (
                                 <NumberTicker value={value} className="text-foreground tracking-tighter" />
                             ) : (
@@ -55,7 +55,7 @@ function StatCard({ title, value, description, icon, color, index }: StatCardPro
                         )}
                     </div>
 
-                    <div className="h-[60px] w-full mt-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <div className="h-[40px] w-full mt-2 opacity-50 group-hover:opacity-100 transition-opacity">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={sparklineData}>
                                 <Line

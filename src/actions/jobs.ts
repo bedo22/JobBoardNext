@@ -27,10 +27,10 @@ export async function incrementJobView(jobId: string) {
 export async function getEmployerJobsWithStats(employerId: string) {
     const supabase = await createClient();
 
-    // Fetch all jobs for the employer
-    const { data: jobs, error } = await supabase
+    // Fetch all jobs for the employer with applicant counts
+    const { data: jobsData, error } = await supabase
         .from('jobs')
-        .select('*')
+        .select('*, applications(count)')
         .eq('employer_id', employerId)
         .order('created_at', { ascending: false });
 
@@ -38,14 +38,29 @@ export async function getEmployerJobsWithStats(employerId: string) {
         throw new Error(`Error fetching employer jobs: ${error.message}`);
     }
 
+    // Transform the data to match the Job type with applicants_count
+    type RawJobWithCount = {
+        applications: { count: number }[];
+        created_at: string;
+        [key: string]: unknown;
+    };
+
+    const jobs = (jobsData as unknown as RawJobWithCount[]).map((job) => ({
+        ...job,
+        applicants_count: job.applications?.[0]?.count || 0
+    }));
+
     // Calculate stats
     const now = new Date();
     const oneWeekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
     
-    const newThisWeek = jobs.filter(job => new Date(job.created_at) > oneWeekAgo).length;
+    // safe because we know created_at is a string from Supabase
+    const newThisWeek = jobs.filter((job) => new Date(job.created_at as string).getTime() > oneWeekAgo.getTime()).length;
 
     return {
-        jobs: jobs || [],
+        // Cast to unknown first to avoid "Type '...[]' is missing properties..."
+        // Then cast to Job[] because we essentially have Job + applicants_count
+        jobs: (jobs as unknown) as import("@/types/app").Job[],
         stats: {
             newThisWeek
         }

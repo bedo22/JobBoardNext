@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Users,
   BarChart3,
-  Settings,
   Plus,
   Heart,
   FileText,
@@ -18,7 +17,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -26,6 +24,7 @@ import {
   SidebarRail,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -114,24 +113,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" className="border-r border-border/40 bg-card/40 backdrop-blur-xl" {...props}>
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <PortalIcon className="size-5" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="truncate font-black">JobBoard</span>
-            <span className="truncate text-xs font-bold text-muted-foreground uppercase tracking-tighter">
+            <span className="truncate font-black text-lg tracking-tight">JobBoard</span>
+            <span className="truncate text-[10px] font-black text-muted-foreground uppercase tracking-wider">
               {loading ? "Loading..." : portalLabel}
             </span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
-      
+
       <SidebarContent>
         {/* Main Dashboard Menu */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-widest px-4 mb-2 text-muted-foreground/70">
-            Dashboard
+            Management
           </SidebarGroupLabel>
           <SidebarMenu>
             {mainNavItems.map((item) => {
@@ -164,10 +163,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
 
+        <SidebarSeparator className="opacity-50 mx-4" />
+
         {/* The Bridge (Platform Links) */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-widest px-4 mb-2 text-muted-foreground/70 group-data-[collapsible=icon]:hidden">
-            Platform
+            Public Access
           </SidebarGroupLabel>
           <SidebarMenu>
             {platformItems.map((item) => (
@@ -188,23 +189,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-border/40">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              asChild
-              tooltip="Settings"
-              isActive={pathname === "/dashboard/settings"}
-              className="font-bold text-muted-foreground hover:bg-muted hover:text-foreground h-11 px-4"
-            >
-              <Link href="/dashboard/settings">
-                <Settings className="size-5" />
-                <span className="group-data-[collapsible=icon]:hidden">Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

@@ -31,15 +31,7 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
     }, [state]);
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Manage Your Listings</h2>
-                <Link href="/jobs/post">
-                    <Button size="sm">Post New Job</Button>
-                </Link>
-            </div>
-
-            <div className="">
+        <div className="">
                 {jobs.length === 0 ? (
                     <Card className="p-12 text-center border-none shadow-2xl bg-card/40 backdrop-blur-xl">
                         <div className="flex flex-col items-center justify-center">
@@ -145,7 +137,6 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
                         })}
                     </BentoGrid>
                 )}
-            </div>
         </div>
     );
 }
