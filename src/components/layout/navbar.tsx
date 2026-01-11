@@ -4,28 +4,32 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet"
-import { Menu, Briefcase, LogOut, LayoutDashboard, User, Settings } from "lucide-react"
+import { Menu, Briefcase, LogOut, LayoutDashboard, Settings } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UserDropdown } from "@/components/layout/user-dropdown"
 import { NotificationBell } from "@/components/features/notifications/notification-bell"
+import { Skeleton } from "@/components/ui/skeleton"
+import { motion, useScroll, useSpring } from "framer-motion"
+import { useState } from "react"
 
 export function Navbar() {
-  const { user, profile, signOut, loading } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const { scrollYProgress } = useScroll()
+  const [isOpen, setIsOpen] = useState(false)
+  
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
 
   const handleLogout = async () => {
     await signOut()
+    setIsOpen(false)
     toast.success("Logged out successfully")
     router.push("/")
   }
@@ -33,17 +37,18 @@ export function Navbar() {
   const navLinks = [
     { name: "Find Jobs", path: "/jobs" },
     { name: "Pricing", path: "/pricing" },
+    { name: "About", path: "/about" },
   ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 font-black text-2xl group transition-all">
+        <Link href="/" aria-label="Home" className="flex items-center gap-3 font-black text-2xl group transition-all">
           <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all group-hover:scale-110 group-hover:rotate-3">
             <Briefcase className="h-7 w-7" />
           </div>
-          <span className="hidden sm:inline bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">JobBoard</span>
+          <span className="hidden sm:inline bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">JobBoard</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -66,7 +71,13 @@ export function Navbar() {
           <ThemeToggle />
           {user && <NotificationBell />}
 
-          {!loading && (
+          {loading ? (
+             <div className="flex items-center gap-3">
+                <Skeleton className="h-9 w-20 rounded-xl hidden md:block" />
+                <Skeleton className="h-9 w-24 rounded-xl hidden md:block" />
+                <Skeleton className="h-9 w-9 rounded-full md:hidden" />
+             </div>
+          ) : (
             <>
               {user ? (
                 <>
@@ -79,42 +90,11 @@ export function Navbar() {
                       </Button>
                     </Link>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
-                            <AvatarFallback>{profile?.full_name?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
-                          </Avatar>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56" align="end" forceMount>
-                        <DropdownMenuLabel className="font-normal">
-                          <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{profile?.full_name || "Profile"}</p>
-                            <p className="text-xs leading-none text-muted-foreground">
-                              {user?.email}
-                            </p>
-                          </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <Link href="/profile">
-                          <DropdownMenuItem className="cursor-pointer">
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile Settings</span>
-                          </DropdownMenuItem>
-                        </Link>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
-                          <LogOut className="mr-2 h-4 w-4" />
-                          <span>Log out</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <UserDropdown />
                   </div>
 
                   {/* Mobile */}
-                  <Sheet>
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
                     <SheetTrigger asChild>
                       <Button variant="ghost" size="icon" className="md:hidden">
                         <Menu className="h-6 w-6" />
@@ -124,16 +104,18 @@ export function Navbar() {
                       <SheetHeader>
                         <SheetTitle className="sr-only">Main menu</SheetTitle>
                       </SheetHeader>
-                      <div className="flex flex-col gap-6 mt-4">
-                        <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
-                          <LayoutDashboard className="h-5 w-5" /> Dashboard
+                      <div className="flex flex-col gap-6 mt-8">
+                        <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-lg font-bold p-2 hover:bg-muted rounded-xl transition-all">
+                          <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                         </Link>
-                        <Link href="/profile" className="flex items-center gap-2 text-lg font-medium">
-                          <Settings className="h-5 w-5" /> Profile Settings
+                        <Link href="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-lg font-bold p-2 hover:bg-muted rounded-xl transition-all">
+                          <Settings className="h-5 w-5 text-primary" /> Profile Settings
                         </Link>
-                        <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-                          <LogOut className="h-4 w-4 mr-2" /> Logout
-                        </Button>
+                        <div className="border-t pt-6">
+                           <Button variant="outline" onClick={handleLogout} className="w-full justify-start font-bold rounded-xl h-12 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all">
+                             <LogOut className="h-5 w-5 mr-3 text-primary" /> Logout
+                           </Button>
+                        </div>
                       </div>
                     </SheetContent>
                   </Sheet>
@@ -145,7 +127,7 @@ export function Navbar() {
                     <Link href="/signup"><Button className="font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform">Sign Up</Button></Link>
                   </div>
 
-                  <Sheet>
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
                     <SheetTrigger asChild>
                       <Button variant="ghost" size="icon" className="md:hidden">
                         <Menu className="h-6 w-6" />
@@ -155,9 +137,34 @@ export function Navbar() {
                       <SheetHeader>
                         <SheetTitle className="sr-only">Main menu</SheetTitle>
                       </SheetHeader>
-                      <div className="flex flex-col gap-6 mt-4">
-                        <Link href="/login" className="text-lg font-medium">Login</Link>
-                        <Link href="/signup"><Button className="w-full">Sign Up</Button></Link>
+                      <div className="flex flex-col gap-8 mt-8">
+                        {/* Mobile Nav Links */}
+                        <div className="flex flex-col gap-2">
+                            {navLinks.map(link => (
+                                <Link 
+                                    key={link.path} 
+                                    href={link.path}
+                                    onClick={() => setIsOpen(false)}
+                                    className={`text-lg font-bold p-3 rounded-xl transition-all hover:bg-primary/5 ${pathname === link.path ? "text-primary bg-primary/10" : "text-foreground/80"}`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Auth Buttons */}
+                        <div className="flex flex-col gap-3 pt-4 border-t border-border/40">
+                            <Link href="/login" onClick={() => setIsOpen(false)} className="w-full">
+                                <Button variant="outline" size="lg" className="w-full font-black rounded-xl h-14 text-lg border-2 border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all">
+                                    Login
+                                </Button>
+                            </Link>
+                            <Link href="/signup" onClick={() => setIsOpen(false)} className="w-full">
+                                <Button size="lg" className="w-full font-black rounded-xl shadow-xl shadow-primary/20 h-14 text-lg hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                    Sign Up
+                                </Button>
+                            </Link>
+                        </div>
                       </div>
                     </SheetContent>
                   </Sheet>
@@ -167,6 +174,10 @@ export function Navbar() {
           )}
         </div>
       </div>
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary origin-left"
+        style={{ scaleX }}
+      />
     </header>
   )
 }

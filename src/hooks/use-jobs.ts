@@ -96,15 +96,14 @@ export function useJobs(filters: Filters = {
   // Serialize filters for stable comparison
   const filtersKey = JSON.stringify(filters)
 
-  const fetchJobs = useCallback(async (reset = false) => {
+  const fetchJobs = useCallback(async (page: number, reset = false) => {
     // Prevent concurrent fetches
     if (fetchingRef.current) return
     fetchingRef.current = true
 
     dispatch({ type: 'FETCH_START' })
     
-    const currentPage = reset ? 0 : state.page
-    const from = currentPage * PAGE_SIZE
+    const from = page * PAGE_SIZE
     const to = from + PAGE_SIZE - 1
 
     try {
@@ -148,20 +147,28 @@ export function useJobs(filters: Filters = {
       })
     } catch (error) {
       console.error('Error fetching jobs:', error)
+      
+      let errorMessage = 'Failed to fetch jobs'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = String((error as { message: unknown }).message)
+      }
+
       dispatch({
         type: 'FETCH_ERROR',
-        payload: error instanceof Error ? error.message : 'Failed to fetch jobs',
+        payload: errorMessage,
       })
     } finally {
       fetchingRef.current = false
     }
-  }, [state.page, filtersKey])
+  }, [filters.search, filters.location, filters.type, filters.remote, filters.hybrid])
 
   const loadMore = useCallback(() => {
     if (!state.loading && state.hasMore && !fetchingRef.current) {
-      void fetchJobs(false)
+      void fetchJobs(state.page, false)
     }
-  }, [state.loading, state.hasMore, fetchJobs])
+  }, [state.loading, state.hasMore, state.page, fetchJobs])
 
   // Reset and fetch when filters change
   useEffect(() => {
@@ -172,11 +179,11 @@ export function useJobs(filters: Filters = {
     const delay = isTextFilter ? 500 : 0
     
     const timer = setTimeout(() => {
-      void fetchJobs(true)
+      void fetchJobs(0, true)
     }, delay)
 
     return () => clearTimeout(timer)
-  }, [filtersKey]) // Only depends on serialized filters
+  }, [filtersKey, fetchJobs, filters.search, filters.location]) // Include all dependencies
 
   return {
     jobs: state.jobs,

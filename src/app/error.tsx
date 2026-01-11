@@ -25,7 +25,7 @@ export default function Error({
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
                     Something went wrong!
                 </h1>
-                <p className="text-muted-foreground max-w-[500px] mx-auto text-lg">
+                <p className="text-muted-foreground max-w-125 mx-auto text-lg">
                     An unexpected error occurred. We&apos;ve been notified and are working on it.
                 </p>
             </div>

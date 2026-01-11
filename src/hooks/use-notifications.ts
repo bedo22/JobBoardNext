@@ -14,6 +14,12 @@ export interface Notification {
     link: string | null;
     is_read: boolean;
     created_at: string;
+    related_id: string | null;
+    related_type: string | null;
+    sender_id: string | null;
+    metadata: Record<string, string | number | boolean | null>;
+    read_at: string | null;
+    deleted_at: string | null;
 }
 
 export function useNotifications() {

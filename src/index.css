@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 /* @import "tw-animate-css/dist/tw-animate.css"; */
 
 @custom-variant dark (&:is(.dark *));
@@ -192,5 +193,32 @@
 
   .pause {
     animation-play-state: paused;
+  }
+
+  /* Job card gradient - CSS-only animated effect */
+  @property --gradient-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .job-card-gradient {
+    background: conic-gradient(
+      from var(--gradient-angle),
+      var(--color-primary) 0%,
+      transparent 50%,
+      transparent 100%
+    );
+    transition: all 0.3s ease;
+  }
+
+  .job-card-gradient:hover {
+    animation: rotate-gradient 3s linear infinite;
+  }
+
+  @keyframes rotate-gradient {
+    to {
+      --gradient-angle: 360deg;
+    }
   }
 }

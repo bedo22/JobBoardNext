@@ -1,13 +1,14 @@
 "use client";
 
 import { Job } from "@/types/app";
-import { StatsCards } from "@/components/features/dashboard/stats-cards";
+import { AnalyticsBento } from "@/components/features/dashboard/analytics-bento";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Briefcase, Plus, Sparkles, Bell } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { DotPattern } from "@/components/ui/dot-pattern";
 
 interface OverviewViewProps {
     jobs: Job[];
@@ -18,21 +19,24 @@ interface OverviewViewProps {
 export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewProps) {
     const totalJobs = jobs.length;
     const totalViews = jobs.reduce((acc, j) => acc + (j.views || 0), 0);
-    const totalApps = jobs.reduce((acc, j) => acc + (j.applications?.length || 0), 0);
-    const avgConversion = totalViews > 0 ? Math.round((totalApps / totalViews) * 100) : 0;
+    const totalApplicants = jobs.reduce((acc, j) => acc + (j.applications?.length || 0), 0);
+    const avgConversion = totalViews > 0 ? Math.round((totalApplicants / totalViews) * 100) : 0;
 
     const recentJobs = [...jobs]
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
         .slice(0, 4);
 
     return (
-        <div className="space-y-10">
-            <StatsCards
-                totalJobs={totalJobs}
-                totalViews={totalViews}
-                avgConversion={avgConversion}
-                newThisWeek={newThisWeek}
-            />
+        <div className="space-y-10 relative">
+            <DotPattern className="opacity-30 mask-[radial-gradient(400px_circle_at_center,white,transparent)]" />
+            <div className="relative z-10 space-y-10">
+                <AnalyticsBento
+                    totalJobs={totalJobs}
+                    totalViews={totalViews}
+                    totalApplicants={totalApplicants}
+                    avgConversion={avgConversion}
+                    newThisWeek={newThisWeek}
+                />
 
             <div className="grid gap-8 lg:grid-cols-3">
                 <Card className="lg:col-span-2 border-none shadow-2xl bg-card/40 backdrop-blur-2xl relative overflow-hidden ring-1 ring-white/10">
@@ -158,6 +162,7 @@ export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewPro
                             </Button>
                         </CardContent>
                     </Card>
+                </div>
                 </div>
             </div>
         </div>

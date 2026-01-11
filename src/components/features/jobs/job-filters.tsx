@@ -17,6 +17,13 @@ interface JobFiltersProps {
         remote: boolean
         hybrid: boolean
     }) => void
+    initialFilters?: {
+        search: string
+        location: string
+        type: JobType[]
+        remote: boolean
+        hybrid: boolean
+    }
 }
 
 const jobTypes: JobType[] = ['full-time', 'part-time', 'contract', 'internship']
@@ -101,12 +108,12 @@ const FiltersContent = ({
     </div>
 )
 
-export function JobFilters({ onChange }: JobFiltersProps) {
-    const [search, setSearch] = useState("")
-    const [location, setLocation] = useState("")
-    const [selectedTypes, setSelectedTypes] = useState<JobType[]>([])
-    const [remote, setRemote] = useState(false)
-    const [hybrid, setHybrid] = useState(false)
+export function JobFilters({ onChange, initialFilters }: JobFiltersProps) {
+    const [search, setSearch] = useState(initialFilters?.search || "")
+    const [location, setLocation] = useState(initialFilters?.location || "")
+    const [selectedTypes, setSelectedTypes] = useState<JobType[]>(initialFilters?.type || [])
+    const [remote, setRemote] = useState(initialFilters?.remote || false)
+    const [hybrid, setHybrid] = useState(initialFilters?.hybrid || false)
     const [open, setOpen] = useState(false)
 
     useEffect(() => {

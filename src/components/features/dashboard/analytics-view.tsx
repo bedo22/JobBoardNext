@@ -44,12 +44,15 @@ export function AnalyticsView({ jobs }: AnalyticsViewProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Performance Analytics</h2>
-                <div className="flex items-center gap-2">
-                    <Button variant={range === '7d' ? 'default' : 'outline'} size="sm" onClick={() => setRange('7d')}>7d</Button>
-                    <Button variant={range === '30d' ? 'default' : 'outline'} size="sm" onClick={() => setRange('30d')}>30d</Button>
-                    <Button variant={range === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setRange('all')}>All</Button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-3xl font-black tracking-tight">Analytical Intel</h2>
+                    <p className="text-sm text-muted-foreground font-semibold uppercase tracking-widest bg-muted/50 w-fit px-2 py-0.5 rounded-lg">Performance Intelligence</p>
+                </div>
+                <div className="flex items-center gap-1.5 p-1 bg-background/50 border rounded-2xl">
+                    <Button variant={range === '7d' ? 'default' : 'ghost'} size="sm" onClick={() => setRange('7d')} className="rounded-xl font-black text-[10px] uppercase">Last 7d</Button>
+                    <Button variant={range === '30d' ? 'default' : 'ghost'} size="sm" onClick={() => setRange('30d')} className="rounded-xl font-black text-[10px] uppercase">Last 30d</Button>
+                    <Button variant={range === 'all' ? 'default' : 'ghost'} size="sm" onClick={() => setRange('all')} className="rounded-xl font-black text-[10px] uppercase">All Time</Button>
                 </div>
             </div>
 

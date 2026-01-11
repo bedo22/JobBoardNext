@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, TrendingUp, Eye, MousePointerClick } from "lucide-react";
 import { motion } from "framer-motion";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 const sparklineData = [
     { value: 400 }, { value: 300 }, { value: 500 }, { value: 450 },
@@ -13,7 +14,7 @@ const sparklineData = [
 
 interface StatCardProps {
     title: string;
-    value: string | number;
+    value: React.ReactNode;
     description?: string;
     icon: React.ReactNode;
     color: string;
@@ -37,7 +38,13 @@ function StatCard({ title, value, description, icon, color, index }: StatCardPro
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-1">
-                        <div className="text-4xl font-black tracking-tight">{value}</div>
+                        <div className="text-4xl font-black tracking-tight flex items-center">
+                            {typeof value === 'number' ? (
+                                <NumberTicker value={value} className="text-foreground tracking-tighter" />
+                            ) : (
+                                value
+                            )}
+                        </div>
                         {description && (
                             <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
                                 <span className="p-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
@@ -82,7 +89,7 @@ export function StatsCards({ totalJobs, totalViews, avgConversion, newThisWeek }
                 index={0}
                 title="Total Jobs"
                 value={totalJobs}
-                description="+12% from last month"
+                description={newThisWeek > 0 ? `${newThisWeek} new this week` : 'No new jobs this week'}
                 icon={<Briefcase className="h-4 w-4" />}
                 color="from-indigo-600 to-indigo-400"
             />
@@ -105,7 +112,7 @@ export function StatsCards({ totalJobs, totalViews, avgConversion, newThisWeek }
             <StatCard
                 index={3}
                 title="Conversion"
-                value={`${avgConversion}%`}
+                value={<div className="flex items-center"><NumberTicker value={avgConversion} className="text-foreground tracking-tighter" />%</div>}
                 description="Application rate"
                 icon={<MousePointerClick className="h-4 w-4" />}
                 color="from-violet-600 to-violet-400"

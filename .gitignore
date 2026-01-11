@@ -42,7 +42,11 @@ yarn-error.log*
 next-env.d.ts
 
 # Personal Documentation
-docs/freelancing
-docs/ownership
-docs/overview
-docs/README.md
+# docs/freelancing
+# docs/ownership
+# docs/overview
+# docs/README.md
+docs
+supabase
+Agents.md
+scripts

@@ -4,11 +4,13 @@ import { Job } from "@/types/app";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, ExternalLink, Edit, Users, Trash2, Loader2, Eye } from "lucide-react";
+import { MoreVertical, ExternalLink, Edit, Users, Trash2, Loader2, Eye, Sparkles, Briefcase } from "lucide-react";
 import Link from "next/link";
-import { deleteJob } from "@/app/dashboard/jobs/actions";
+import { deleteJob } from "@/app/(dashboard)/dashboard/jobs/actions";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
+import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+import { cn } from "@/lib/utils";
 
 interface JobManagementViewProps {
     jobs: Job[];
@@ -37,112 +39,111 @@ export function JobManagementView({ jobs }: JobManagementViewProps) {
                 </Link>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
+            <div className="">
                 {jobs.length === 0 ? (
-                    <Card className="p-12 text-center border-dashed">
+                    <Card className="p-12 text-center border-none shadow-2xl bg-card/40 backdrop-blur-xl">
                         <div className="flex flex-col items-center justify-center">
-                            <div className="p-4 rounded-full bg-muted mb-4">
-                                <Users className="h-8 w-8 text-muted-foreground" />
+                            <div className="p-4 rounded-full bg-primary/10 mb-4 text-primary">
+                                <Users className="h-8 w-8" />
                             </div>
-                            <h3 className="text-lg font-medium">No jobs posted yet</h3>
-                            <p className="text-muted-foreground max-w-xs mx-auto mt-2">
+                            <h3 className="text-xl font-black italic">The stage is empty</h3>
+                            <p className="text-muted-foreground max-w-xs mx-auto mt-2 font-semibold">
                                 Start reaching talented candidates by posting your first job listing today.
                             </p>
                             <Link href="/jobs/post">
-                                <Button className="mt-6">Create Post</Button>
+                                <Button className="mt-6 rounded-2xl font-black px-8">Create Post</Button>
                             </Link>
                         </div>
                     </Card>
                 ) : (
-                    jobs.map(job => (
-                        <Card key={job.id} className={`p-6 transition-all hover:shadow-md ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="space-y-1">
-                                    <h3 className="font-semibold text-lg hover:text-primary cursor-pointer line-clamp-1">
-                                        <Link href={`/jobs/${job.id}`}>{job.title}</Link>
-                                    </h3>
-                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                        <span>{job.company_name}</span>
-                                        <span>•</span>
-                                        <span className="capitalize">{job.type?.replace(/-/g, ' ')}</span>
-                                        <span>•</span>
-                                        <span className="capitalize">{job.location_type}</span>
-                                    </div>
-                                    <div className="flex items-center gap-4 mt-2">
-                                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                            <Eye className="h-3.5 w-3.5" />
-                                            {job.views || 0} Views
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                            <Users className="h-3.5 w-3.5" />
-                                            {job.applications?.length || 0} Apps
-                                        </div>
-                                        {job.views && job.views > 0 && (
-                                            <div className="text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded border border-primary/10">
-                                                {Math.round(((job.applications?.length || 0) / job.views) * 100)}% Conv.
+                    <BentoGrid className="max-w-full">
+                        {jobs.map((job, i) => {
+                            const isFeatured = i % 5 === 0;
+                            return (
+                                <BentoGridItem
+                                    key={job.id}
+                                    title={job.title}
+                                    description={
+                                        <div className="space-y-4">
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                                                <span>{job.company_name}</span>
+                                                <span>•</span>
+                                                <span>{job.type?.replace(/-/g, ' ')}</span>
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="hidden sm:flex items-center gap-2">
-                                        <Button size="sm" variant="outline" asChild className="gap-2">
-                                            <Link href={`/dashboard/applicants/${job.id}`}>
-                                                <Users className="h-4 w-4" /> Applicants
-                                            </Link>
-                                        </Button>
-                                        <Button size="sm" variant="outline" asChild className="gap-2">
-                                            <Link href={`/jobs/post?edit=${job.id}`}>
-                                                <Edit className="h-4 w-4" /> Edit
-                                            </Link>
-                                        </Button>
-                                    </div>
-
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                {isPending ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <MoreVertical className="h-4 w-4" />}
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-48">
-                                            <DropdownMenuItem asChild>
-                                                <Link href={`/jobs/${job.id}`} className="gap-2">
-                                                    <ExternalLink className="h-4 w-4" /> View Live Listing
-                                                </Link>
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem asChild className="sm:hidden">
-                                                <Link href={`/dashboard/applicants/${job.id}`} className="gap-2">
-                                                    <Users className="h-4 w-4" /> View Applicants
-                                                </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="sm:hidden">
-                                                <Link href={`/jobs/post?edit=${job.id}`} className="gap-2">
-                                                    <Edit className="h-4 w-4" /> Edit Listing
-                                                </Link>
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem
-                                                className="text-destructive focus:text-destructive gap-2 cursor-pointer"
-                                                onSelect={(e) => {
-                                                    if (!confirm('Are you sure? This listing and all its applications will be permanently deleted.')) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                            >
-                                                <form action={formAction} className="flex items-center gap-2 w-full">
-                                                    <input type="hidden" name="job_id" value={job.id} />
-                                                    <Trash2 className="h-4 w-4" />
-                                                    <button type="submit" className="flex-1 text-left">Delete Posting</button>
-                                                </form>
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                            </div>
-                        </Card>
-                    ))
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg">
+                                                    <Eye className="h-3 w-3" />
+                                                    {job.views || 0}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg">
+                                                    <Users className="h-3 w-3" />
+                                                    {job.applications?.length || 0}
+                                                </div>
+                                                {job.views && job.views > 0 && (
+                                                    <div className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                                                        {Math.round(((job.applications?.length || 0) / job.views) * 100)}% CONV.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    }
+                                    header={
+                                        <div className="relative group/card h-full w-full min-h-24 rounded-xl overflow-hidden bg-linear-to-br from-muted to-muted/50 border border-border/50 transition-all">
+                                            <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                                            <div className="absolute top-2 right-2 flex gap-1">
+                                                <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg bg-background/50 backdrop-blur-sm shadow-sm" asChild>
+                                                    <Link href={`/jobs/post?edit=${job.id}`}>
+                                                        <Edit className="h-3.5 w-3.5" />
+                                                    </Link>
+                                                </Button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg bg-background/50 backdrop-blur-sm shadow-sm">
+                                                            {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MoreVertical className="h-3.5 w-3.5" />}
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="w-48 rounded-xl p-1 border-white/10 backdrop-blur-xl bg-background/80">
+                                                        <DropdownMenuItem asChild className="rounded-lg">
+                                                            <Link href={`/jobs/${job.id}`} className="gap-2 font-bold">
+                                                                <ExternalLink className="h-4 w-4 text-primary" /> View Live
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem asChild className="rounded-lg">
+                                                            <Link href={`/dashboard/applicants/${job.id}`} className="gap-2 font-bold">
+                                                                <Users className="h-4 w-4 text-primary" /> Applicants
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            className="text-destructive focus:text-destructive gap-2 cursor-pointer font-bold rounded-lg"
+                                                            onSelect={(e) => {
+                                                                if (!confirm('Permanently delete this listing?')) {
+                                                                    e.preventDefault();
+                                                                }
+                                                            }}
+                                                        >
+                                                            <form action={formAction} className="flex items-center gap-2 w-full">
+                                                                <input type="hidden" name="job_id" value={job.id} />
+                                                                <Trash2 className="h-4 w-4" />
+                                                                <button type="submit" className="flex-1 text-left">Delete</button>
+                                                            </form>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover/card:opacity-20 transition-opacity pointer-events-none">
+                                                <Briefcase className="h-12 w-12" />
+                                            </div>
+                                        </div>
+                                    }
+                                    icon={isFeatured ? <Sparkles className="h-4 w-4 text-primary" /> : <Briefcase className="h-4 w-4 text-muted-foreground" />}
+                                    className={cn(
+                                        "group/bento bg-card/40 backdrop-blur-xl border-border/50 hover:border-primary/50 transition-all",
+                                        isFeatured ? "md:col-span-2" : "md:col-span-1"
+                                    )}
+                                />
+                            );
+                        })}
+                    </BentoGrid>
                 )}
             </div>
         </div>

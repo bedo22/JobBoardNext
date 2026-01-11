@@ -1,70 +1,53 @@
-'use server'
+"use server";
 
-import { supabase } from "@/lib/supabaseClient";
-import { Job } from "@/types/app";
+import { createClient } from "@/lib/supabase/server";
 
-/**
- * Increments the view count for a specific job.
- * uses a secure RPC to bypass RLS for this specific operation.
- */
 export async function incrementJobView(jobId: string) {
-    if (!jobId) return;
+    const supabase = await createClient();
+    
+    // We use a RPC (Remote Procedure Call) to increment the counter safely
+    // This prevents race conditions
+    const { error } = await supabase.rpc('increment_job_views', { job_id: jobId });
 
-    try {
-        const { error } = await supabase.rpc('increment_view_count', {
-            job_id: jobId
-        });
-
-        if (error) {
-            console.error("Error incrementing job view:", error);
-            return { error: error.message };
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error("Unexpected error incrementing job view:", error);
-        return { error: "Failed to increment view count" };
+    if (error) {
+        // Fallback to manual increment if RPC doesn't exist yet
+        const { data } = await supabase
+            .from('jobs')
+            .select('views_count')
+            .eq('id', jobId)
+            .single();
+            
+        await supabase
+            .from('jobs')
+            .update({ views_count: (data?.views_count || 0) + 1 })
+            .eq('id', jobId);
     }
 }
 
-/**
- * Fetches employer's jobs with calculated statistics
- * Calculates newThisWeek on the server to avoid client-side impure functions
- */
 export async function getEmployerJobsWithStats(employerId: string) {
-    if (!employerId) {
-        return { jobs: [], stats: { newThisWeek: 0 } };
+    const supabase = await createClient();
+
+    // Fetch all jobs for the employer
+    const { data: jobs, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('employer_id', employerId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        throw new Error(`Error fetching employer jobs: ${error.message}`);
     }
 
-    try {
-        const { data, error } = await supabase
-            .from('jobs')
-            .select('*, applications(id)')
-            .eq('employer_id', employerId)
-            .order('created_at', { ascending: false });
+    // Calculate stats
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    
+    const newThisWeek = jobs.filter(job => new Date(job.created_at) > oneWeekAgo).length;
 
-        if (error) {
-            console.error("Failed to fetch jobs:", error);
-            return { jobs: [], stats: { newThisWeek: 0 }, error: error.message };
+    return {
+        jobs: jobs || [],
+        stats: {
+            newThisWeek
         }
-
-        const jobs = (data || []) as Job[];
-
-        // Calculate statistics on the server
-        const now = Date.now();
-        const oneWeek = 7 * 24 * 60 * 60 * 1000;
-        const newThisWeek = jobs.filter(j => 
-            j.created_at && (now - new Date(j.created_at).getTime()) < oneWeek
-        ).length;
-
-        return {
-            jobs,
-            stats: {
-                newThisWeek
-            }
-        };
-    } catch (error) {
-        console.error("Unexpected error fetching jobs:", error);
-        return { jobs: [], stats: { newThisWeek: 0 }, error: "Failed to fetch jobs" };
-    }
+    };
 }

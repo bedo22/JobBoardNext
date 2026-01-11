@@ -86,105 +86,6 @@ Completely redesigned with a focus on impact and polish:
 
 ---
 
-## ⚙️ Environment Configuration
-
-### Core Setup (Required)
-```env
-# Supabase (Modern Keys)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJhbGc...
-SUPABASE_SECRET_KEY=sb_secret_...
-
-# AI Configuration (Optional - for AI features)
-GOOGLE_GENERATIVE_AI_API_KEY=AIza...
-AI_GOOGLE_MODEL=gemini-2.5-flash-preview-09-2025
-```
-
-### Payment Configuration (Optional - Feature Flagged)
-
-#### **Demo/Portfolio Mode** (Default - Safe for Public Deployment)
-```env
-# Don't set any Stripe variables
-# OR explicitly disable:
-NEXT_PUBLIC_ENABLE_PAYMENTS=false
-```
-- ✅ Payment UI displays but shows "View Demo" buttons
-- ✅ Safe to deploy publicly without exposing Stripe keys
-- ✅ Perfect for portfolio/demo environments
-- ✅ No risk of accidental charges
-
-#### **Production Mode** (Real Payment Processing)
-```env
-NEXT_PUBLIC_ENABLE_PAYMENTS=true
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_ID=price_...
-```
-- 💳 Real Stripe Checkout integration
-- 🔄 Webhook-driven subscription management
-- ✅ Full payment processing enabled
-
-**📚 See [Demo Deployment Guide](docs/setup/DEMO_DEPLOYMENT.md) for detailed payment configuration options.**
-
----
-
-## 🚀 Getting Started
-
-### Quick Start (Demo Mode)
-1.  **Clone & Install**:
-    ```bash
-    git clone <repository-url>
-    npm install
-    ```
-
-2.  **Environment Setup**:
-    ```bash
-    cp .env.example .env
-    # Add your Supabase credentials to .env
-    # Payment features work in demo mode by default
-    ```
-
-3.  **Database Setup**:
-    ```bash
-    # Run migrations in Supabase SQL Editor or via CLI
-    # See docs/setup/setup-guide.md for details
-    ```
-
-4.  **Run Development Server**:
-    ```bash
-    npm run dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000)
-
-5.  **Build Verification**:
-    ```bash
-    npm run build
-    ```
-
-### Deployment Options
-
-#### **Vercel (Recommended for Demo)**
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables (Supabase only for demo)
-4. Deploy! 🚀
-
-**Result**: Fully functional demo with payment UI in demo mode
-
-#### **Production Deployment**
-1. Add all Stripe environment variables
-2. Set `NEXT_PUBLIC_ENABLE_PAYMENTS=true`
-3. Configure Stripe webhooks: `https://yourdomain.com/api/webhooks/stripe`
-4. Deploy with confidence 💪
-
-**📚 Full deployment guides:**
-- [Demo Deployment Guide](docs/setup/DEMO_DEPLOYMENT.md) - Payment configuration options
-- [Setup Guide](docs/setup/setup-guide.md) - Database and initial setup
-- [Deployment Guide](docs/setup/DEPLOYMENT_GUIDE.md) - Production deployment
-
----
-
 ## 🎯 Key Features
 
 ### For Job Seekers
@@ -232,26 +133,7 @@ src/
 
 ---
 
-## 🎥 Demo & Video Recording
 
-For recording demo videos with payment functionality:
-
-1. **Enable payments locally**:
-   ```env
-   NEXT_PUBLIC_ENABLE_PAYMENTS=true
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-   STRIPE_SECRET_KEY=sk_test_...
-   ```
-
-2. **Use Stripe test cards**:
-   - Success: `4242 4242 4242 4242`
-   - Decline: `4000 0000 0000 0002`
-
-3. **Record full payment flow** - Checkout, success, subscription confirmation
-
-4. **Deploy in demo mode** - Safe for public portfolio without exposing keys
-
----
 
 ## 👨‍💻 Developer & Portfolio
 
@@ -272,13 +154,8 @@ Built to demonstrate readiness for high-stakes SaaS development. Focus areas inc
 
 ## 📄 License
 
-[Your License Here]
+All right Reserved © JobBoard Elite 2026.
 
----
-
-## 🤝 Contributing
-
-This is a portfolio/demo project. Feel free to fork and adapt for your own use!
 
 ---
 
