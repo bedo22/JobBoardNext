@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Job, Application } from "@/types/app";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Briefcase, ChevronRight } from "lucide-react";
@@ -11,17 +10,12 @@ import { ApplicationCard } from "./application-card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChatWindow } from "@/components/features/messaging/chat-window";
 import { useChat } from "@/hooks/use-chat";
-import type { Database } from "@/types/supabase";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type JobWithEmployer = Job & { profiles: Profile | null };
-type ApplicationWithJob = Application & {
-    jobs: JobWithEmployer | null;
-};
+import { ApplicationWithJobAndEmployer } from "@/types/app";
 
-export function SeekerView() {
-    const [applications, setApplications] = useState<ApplicationWithJob[]>([]);
-    const [loading, setLoading] = useState(true);
+export function SeekerView({ initialApplications = [] }: { initialApplications?: ApplicationWithJobAndEmployer[] }) {
+    const [applications, setApplications] = useState<ApplicationWithJobAndEmployer[]>(initialApplications);
+    const [loading, setLoading] = useState(initialApplications.length === 0);
     const { activeChat, isChatOpening, openChat, closeChat } = useChat();
 
     useEffect(() => {
@@ -51,7 +45,7 @@ export function SeekerView() {
         fetchApplications();
     }, []);
 
-    const handleOpenChat = async (application: ApplicationWithJob) => {
+    const handleOpenChat = async (application: ApplicationWithJobAndEmployer) => {
         if (!application.jobs?.employer_id) return;
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;

@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+.brv
 
 # debug
 npm-debug.log*
@@ -42,11 +43,10 @@ yarn-error.log*
 next-env.d.ts
 
 # Personal Documentation
-# docs/freelancing
-# docs/ownership
-# docs/overview
-# docs/README.md
-docs
+docs/freelancing
+docs/ownership
+docs/overview
+docs/README.md
 supabase
 Agents.md
 scripts

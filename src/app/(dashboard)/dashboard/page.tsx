@@ -1,95 +1,91 @@
-"use client";
-
-import { useAuth } from "@/hooks/use-auth"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Job } from "@/types/app"
-import Link from "next/link"
-import { Loader2 } from "lucide-react"
-import { getEmployerJobsWithStats } from "@/actions/jobs"
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Job } from "@/types/app";
+import Link from "next/link";
+import { getEmployerJobsWithStats } from "@/actions/jobs";
 
 // Modular Views
-import { OverviewView } from "@/components/features/dashboard/overview-view"
-import { SeekerView } from "@/components/features/dashboard/seeker-view"
+import { OverviewView } from "@/components/features/dashboard/overview-view";
+import { SeekerView } from "@/components/features/dashboard/seeker-view";
 
-export default function DashboardPage() {
-  const { profile, isEmployer, isSeeker, loading: isAuthLoading } = useAuth()
-  const [myJobs, setMyJobs] = useState<Job[]>([])
-  const [jobStats, setJobStats] = useState<{ newThisWeek: number }>({ newThisWeek: 0 })
-  const [isLoadingData, setIsLoadingData] = useState(true)
+export default async function DashboardPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    async function fetchEmployerData() {
-      if (!profile?.id) return;
-      try {
-        const result = await getEmployerJobsWithStats(profile.id);
-        setMyJobs(result.jobs);
-        setJobStats(result.stats);
-      } catch (error) {
-        console.error("Failed to fetch jobs:", error);
-      } finally {
-        setIsLoadingData(false);
-      }
+    if (!user) {
+        redirect("/login");
     }
 
+    // Fetch Profile
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+    const role = profile?.role;
+    const isEmployer = role === "employer";
+    const isSeeker = role === "seeker";
+
+    // Data containers
+    let myJobs: Job[] = [];
+    let jobStats = { newThisWeek: 0 };
+    let seekerApplications: import("@/types/app").ApplicationWithJobAndEmployer[] = [];
+
+    // Fetch data based on role
     if (isEmployer) {
-      fetchEmployerData();
+        const result = await getEmployerJobsWithStats();
+        myJobs = result.jobs;
+        jobStats = result.stats;
     } else if (isSeeker) {
-      // No extra data needed for seeker dash yet, handled in SeekerView
-      setIsLoadingData(false);
-    } else if (!isAuthLoading) {
-      setIsLoadingData(false);
+        const { data: applications } = await supabase
+            .from("applications")
+            .select("*, jobs!job_id(*, profiles!employer_id(*))")
+            .eq("seeker_id", user.id)
+            .order("applied_at", { ascending: false });
+        seekerApplications = applications || [];
     }
-  }, [isEmployer, isSeeker, profile, isAuthLoading])
 
-  if (isAuthLoading || isLoadingData) {
-    return (
-      <div className="container py-32 flex flex-col items-center justify-center text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground animate-pulse">Loading your dashboard...</p>
-      </div>
-    );
-  }
+    if (!role) {
+        return (
+            <div className="container py-20 text-center max-w-md mx-auto">
+                <h1 className="text-3xl font-bold mb-4">Setup Required</h1>
+                <p className="text-muted-foreground mb-8">
+                    Your profile is missing a role. Please complete your registration to access the dashboard.
+                </p>
+                <Link href="/">
+                    <Button size="lg" className="w-full">Return Home</Button>
+                </Link>
+            </div>
+        );
+    }
 
-  // Role-based Layouts
-  if (isSeeker) {
-    return (
-      <div className="container py-10 max-w-5xl">
-        <SeekerView />
-      </div>
-    );
-  }
+    if (isSeeker) {
+        return (
+            <div className="container py-10 max-w-5xl">
+                <SeekerView initialApplications={seekerApplications} />
+            </div>
+        );
+    }
 
     return (
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight">Overview</h1>
-            <p className="text-muted-foreground mt-1 font-semibold">
-              Welcome back, {profile?.full_name || 'Employer'}.
-            </p>
-          </div>
-          <Link href="/jobs/post">
-            <Button size="lg" className="shadow-lg rounded-2xl font-black px-8">Post New Job</Button>
-          </Link>
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight">Overview</h1>
+                    <p className="text-muted-foreground mt-1 font-semibold">
+                        Welcome back, {profile?.full_name || 'Employer'}.
+                    </p>
+                </div>
+                <Link href="/jobs/post">
+                    <Button size="lg" className="shadow-lg rounded-2xl font-black px-8">Post New Job</Button>
+                </Link>
+            </div>
+
+            <div className="mt-0">
+                <OverviewView jobs={myJobs} newThisWeek={jobStats.newThisWeek} />
+            </div>
         </div>
-
-        <div className="mt-0">
-          <OverviewView jobs={myJobs} newThisWeek={jobStats.newThisWeek} onSwitchTab={() => {}} />
-        </div>
-      </div>
-    )
-
-  // Default Fallback
-  return (
-    <div className="container py-20 text-center max-w-md mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Setup Required</h1>
-      <p className="text-muted-foreground mb-8">
-        Your profile is missing a role. Please complete your registration to access the dashboard.
-      </p>
-      <Link href="/">
-        <Button size="lg" className="w-full">Return Home</Button>
-      </Link>
-    </div>
-  );
+    );
 }

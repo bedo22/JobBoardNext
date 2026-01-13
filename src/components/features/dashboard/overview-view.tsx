@@ -13,10 +13,9 @@ import { DotPattern } from "@/components/ui/dot-pattern";
 interface OverviewViewProps {
     jobs: Job[];
     newThisWeek: number;
-    onSwitchTab: (tab: string) => void;
 }
 
-export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewProps) {
+export function OverviewView({ jobs, newThisWeek }: OverviewViewProps) {
     const totalJobs = jobs.length;
     const totalViews = jobs.reduce((acc, j) => acc + (j.views || 0), 0);
     const totalApplicants = jobs.reduce((acc, j) => acc + (j.applications?.length || 0), 0);
@@ -51,8 +50,10 @@ export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewPro
                             </CardTitle>
                             <p className="text-sm text-muted-foreground font-semibold">Live activity from your hiring pipeline</p>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => onSwitchTab('manage')} className="gap-2 rounded-full hover:bg-primary/10 hover:text-primary transition-all group">
-                            Full Pipeline <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        <Button variant="ghost" size="sm" className="gap-2 rounded-full hover:bg-primary/10 hover:text-primary transition-all group" asChild>
+                            <Link href="/dashboard/jobs">
+                                Full Pipeline <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -155,10 +156,12 @@ export function OverviewView({ jobs, newThisWeek, onSwitchTab }: OverviewViewPro
                             <Button
                                 variant="outline"
                                 className="w-full justify-between rounded-xl py-6 border-white/10 hover:bg-white/5 group transition-all"
-                                onClick={() => onSwitchTab('analytics')}
+                                asChild
                             >
-                                <span className="font-black text-sm uppercase tracking-widest">Full Analytics</span>
-                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
+                                <Link href="/dashboard/analytics">
+                                    <span className="font-black text-sm uppercase tracking-widest">Full Analytics</span>
+                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
+                                </Link>
                             </Button>
                         </CardContent>
                     </Card>

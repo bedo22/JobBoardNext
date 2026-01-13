@@ -1,49 +1,22 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getEmployerJobsWithStats } from "@/actions/jobs";
+import { AnalyticsView } from "@/components/features/dashboard/analytics-view";
 
-import { useAuth } from "@/hooks/use-auth"
-import { useEffect, useState } from "react"
-import { Job } from "@/types/app"
-import { getEmployerJobsWithStats } from "@/actions/jobs"
-import { AnalyticsView } from "@/components/features/dashboard/analytics-view"
-import { Loader2 } from "lucide-react"
+export default async function AnalyticsPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-export default function AnalyticsPage() {
-    const { profile, loading: isAuthLoading } = useAuth()
-    const [myJobs, setMyJobs] = useState<Job[]>([])
-    const [isLoadingData, setIsLoadingData] = useState(true)
-
-    useEffect(() => {
-        async function fetchEmployerData() {
-            if (!profile?.id) return;
-            try {
-                const result = await getEmployerJobsWithStats(profile.id);
-                setMyJobs(result.jobs);
-            } catch (error) {
-                console.error("Failed to fetch jobs:", error);
-            } finally {
-                setIsLoadingData(false);
-            }
-        }
-
-        if (!isAuthLoading && profile?.id) {
-            fetchEmployerData();
-        } else if (!isAuthLoading && !profile?.id) {
-            setIsLoadingData(false); // Auth loaded but no profile
-        }
-    }, [profile, isAuthLoading])
-
-    if (isAuthLoading || isLoadingData) {
-        return (
-            <div className="container py-32 flex flex-col items-center justify-center text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground animate-pulse">Loading analytics...</p>
-            </div>
-        );
+    if (!user) {
+        redirect("/login");
     }
+
+    // Fetch Employer Data
+    const result = await getEmployerJobsWithStats();
 
     return (
         <AnalyticsView 
-            jobs={myJobs} 
+            jobs={result.jobs} 
             title="Analytics" 
             description="Global metrics and conversion performance." 
         />

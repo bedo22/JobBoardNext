@@ -24,8 +24,16 @@ export async function incrementJobView(jobId: string) {
     }
 }
 
-export async function getEmployerJobsWithStats(employerId: string) {
+// ✅ SECURE: The server determines identity from the session
+export async function getEmployerJobsWithStats() {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error("Unauthorized");
+    }
+
+    const employerId = user.id;
 
     // Fetch all jobs for the employer with applicant counts
     const { data: jobsData, error } = await supabase

@@ -17,7 +17,7 @@ export default function ApplicantsPage() {
         async function fetchEmployerData() {
             if (!profile?.id) return;
             try {
-                const result = await getEmployerJobsWithStats(profile.id);
+                const result = await getEmployerJobsWithStats();
                 setMyJobs(result.jobs);
             } catch (error) {
                 console.error("Failed to fetch jobs:", error);

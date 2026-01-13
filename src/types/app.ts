@@ -18,3 +18,7 @@ export type LocationType = 'onsite' | 'remote' | 'hybrid'
 export type ApplicationWithProfile = Application & {
     profiles: Profile | null
 }
+
+export type ApplicationWithJobAndEmployer = Application & {
+    jobs: (Job & { profiles: Profile | null }) | null;
+}
