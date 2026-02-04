@@ -1,13 +1,24 @@
-import { Button } from "@/components/ui/button"
+import dynamicImport from "next/dynamic"
 import Link from "next/link"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 import { ArrowRight, Briefcase, Users, Sparkles, TrendingUp } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
 import { JobCard } from "@/components/features/jobs/job-card"
 import { BackgroundMesh } from "@/components/features/marketing/background-mesh"
-import { TrustedBy } from "@/components/features/marketing/trusted-by"
-import { BackgroundBeams } from "@/components/ui/background-beams"
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid"
+
+// Dynamic imports for performance optimization
+const TrustedBy = dynamicImport(() => import("@/components/features/marketing/trusted-by").then(mod => mod.TrustedBy), {
+  loading: () => <div className="h-32 animate-pulse bg-muted/20" />
+})
+
+const BackgroundBeams = dynamicImport(() => import("@/components/ui/background-beams").then(mod => mod.BackgroundBeams))
+
+const BentoGrid = dynamicImport(() => import("@/components/ui/bento-grid").then(mod => mod.BentoGrid), {
+  loading: () => <div className="h-96 animate-pulse bg-muted/10 rounded-xl" />
+})
+
+const BentoGridItem = dynamicImport(() => import("@/components/ui/bento-grid").then(mod => mod.BentoGridItem))
 
 export const dynamic = 'force-dynamic'
 

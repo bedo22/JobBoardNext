@@ -33,7 +33,7 @@ export function TrustedBy() {
                     className="flex gap-12 items-center min-w-full"
                 >
                     {[...companies, ...companies].map((company, idx) => (
-                        <div key={idx} className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                        <div key={idx} className="flex items-center gap-3 opacity-70 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
                             <company.icon className="h-6 w-6 text-primary" />
                             <span className="text-xl font-black tracking-tighter italic">{company.name}</span>
                         </div>
