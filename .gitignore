@@ -50,3 +50,5 @@ docs/README.md
 supabase
 Agents.md
 scripts
+.agent
+.private
